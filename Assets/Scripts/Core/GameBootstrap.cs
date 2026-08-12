@@ -1,74 +1,57 @@
 using UnityEngine;
+using HeroDefense.Hero;
+using HeroDefense.Input;
+using HeroDefense.CameraRig;
 
 namespace HeroDefense.Core
 {
     /// <summary>
-    /// Composition Root. Единственная точка входа сцены: здесь и только здесь
-    /// системы связываются друг с другом. Ничто в проекте не должно искать зависимости
-    /// через FindObjectOfType или синглтоны — всё приходит отсюда.
+    /// Composition root. Единственное место в проекте, которое знает,
+    /// какая конкретная реализация ввода используется.
     ///
-    /// В Epic 0 связывать почти нечего. Класс существует, чтобы порядок инициализации
-    /// был явным с самого начала и не пришлось вводить его задним числом.
+    /// Переход на мобильный ввод = изменить одну строку в CreateInput().
+    /// Ни герой, ни камера при этом не трогаются.
     /// </summary>
-    [DefaultExecutionOrder(-1000)]
-    [DisallowMultipleComponent]
-    public class GameBootstrap : MonoBehaviour
+    public sealed class GameBootstrap : MonoBehaviour
     {
-        [Header("Services")]
-        [SerializeField] private InputReader inputReader;
-        [SerializeField] private CameraRig cameraRig;
+        public enum InputMode
+        {
+            Keyboard,
+            // Touch,   // сюда добавится тап/джойстик
+        }
 
-        [Header("Scene")]
-        [Tooltip("За чем следит камера на старте. Позже сюда встанет герой, пока — placeholder.")]
-        [SerializeField] private Transform initialCameraTarget;
+        [Header("Конфигурация")]
+        [SerializeField] private InputMode inputMode = InputMode.Keyboard;
 
-        [Header("Профилирование")]
-        [Tooltip("ВКЛЮЧАТЬ ТОЛЬКО НА ВРЕМЯ ЗАМЕРОВ В EPIC 1.\n\n" +
-                 "Снимает ограничение частоты кадров и разрешает работу в фоне — без этого " +
-                 "не видно, есть ли запас производительности.\n\n" +
-                 "В релизной сборке ОБЯЗАТЕЛЬНО выключить: Яндекс Игры требуют, чтобы при " +
-                 "сворачивании страницы игра и звук останавливались.")]
-        [SerializeField] private bool profilingMode;
+        [Header("Сцена")]
+        [SerializeField] private HeroMotor hero;
+        [SerializeField] private IsometricCameraFollow cameraFollow;
 
         private void Awake()
         {
-            ApplyFrameSettings();
+            if (hero == null)
+            {
+                Debug.LogError("[Bootstrap] Не назначен HeroMotor.", this);
+                return;
+            }
 
-            if (inputReader == null)
-                Debug.LogError("[GameBootstrap] InputReader не назначен — ввода не будет.", this);
-            else
-                inputReader.Enable();
+            IMovementInput input = CreateInput(inputMode);
+            hero.SetInput(input);
 
-            if (cameraRig == null)
-                Debug.LogError("[GameBootstrap] CameraRig не назначен.", this);
-            else if (initialCameraTarget != null)
-                cameraRig.SetTarget(initialCameraTarget);
+            if (cameraFollow != null)
+                cameraFollow.SetTarget(hero.transform);
+
+            Debug.Log($"[Bootstrap] Инициализация завершена. Режим ввода: {inputMode}");
         }
 
-        private void ApplyFrameSettings()
+        private static IMovementInput CreateInput(InputMode mode)
         {
-            // vSync маскирует реальную производительность: кадр всегда «успевает» к развёртке.
-            QualitySettings.vSyncCount = 0;
-
-            if (profilingMode)
+            switch (mode)
             {
-                Application.targetFrameRate = -1;
-                Application.runInBackground = true;
+                case InputMode.Keyboard:
+                default:
+                    return new KeyboardMovementInput();
             }
-            else
-            {
-                Application.targetFrameRate = 60;
-
-                // Требование площадки: свёрнутая вкладка не должна продолжать играть и шуметь.
-                // Дублирует галку Player Settings → Resolution and Presentation → Run In Background,
-                // которая тоже должна быть снята.
-                Application.runInBackground = false;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (inputReader != null) inputReader.Disable();
         }
     }
 }
