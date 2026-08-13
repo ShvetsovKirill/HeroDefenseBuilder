@@ -15,19 +15,19 @@ MonoBehaviour:
   displayName: "\u0412\u043E\u043B\u043D\u0430 1"
   groups:
   - enemy: {fileID: 11400000, guid: a8fbfcf224840fd45a4390a01dc5568b, type: 2}
-    count: 2
+    count: 4
     spawnPointIndex: 0
     startDelay: 0
     interval: 0.5
     burstSize: 1
   - enemy: {fileID: 11400000, guid: a8fbfcf224840fd45a4390a01dc5568b, type: 2}
-    count: 2
+    count: 4
     spawnPointIndex: 1
     startDelay: 1
     interval: 0.5
     burstSize: 1
   - enemy: {fileID: 11400000, guid: a8fbfcf224840fd45a4390a01dc5568b, type: 2}
-    count: 2
+    count: 4
     spawnPointIndex: 2
     startDelay: 2
     interval: 0.5

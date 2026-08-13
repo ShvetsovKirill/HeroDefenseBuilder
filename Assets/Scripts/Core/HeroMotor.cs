@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroDefense.Core;
 using HeroDefense.Input;
 
 namespace HeroDefense.Hero
@@ -57,7 +58,7 @@ namespace HeroDefense.Hero
 
         private void Update()
         {
-            if (_input == null)
+            if (_input == null || !IsGameRunning)
                 return;
 
             Vector3 move = ToWorldDirection(_input.GetMoveDirection());
@@ -67,6 +68,10 @@ namespace HeroDefense.Hero
             ApplyGravity();
             ApplyMovement(move);
         }
+
+        /// <summary>Во время паузы и после конца партии король стоит.</summary>
+        private static bool IsGameRunning =>
+            GameState.Current == null || GameState.Current.IsPlaying;
 
         /// <summary>
         /// Вертикальная скорость. Прижимаем к земле, иначе CharacterController

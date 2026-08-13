@@ -15,13 +15,13 @@ MonoBehaviour:
   displayName: "\u0412\u043E\u043B\u043D\u0430 4"
   groups:
   - enemy: {fileID: 11400000, guid: 198088aceccc52e43a7f298401bfba39, type: 2}
-    count: 1
+    count: 3
     spawnPointIndex: 0
     startDelay: 0
     interval: 0.5
     burstSize: 1
   - enemy: {fileID: 11400000, guid: 198088aceccc52e43a7f298401bfba39, type: 2}
-    count: 1
+    count: 3
     spawnPointIndex: 2
     startDelay: 1
     interval: 0.5

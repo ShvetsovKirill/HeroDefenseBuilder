@@ -64,7 +64,7 @@ namespace HeroDefense.Base
         /// </summary>
         private void TickIncome(float deltaTime)
         {
-            if (!_health.IsAlive)
+            if (!_health.IsAlive || !IsGameRunning)
                 return;
 
             _incomeTimer += deltaTime;
@@ -75,6 +75,9 @@ namespace HeroDefense.Base
             _incomeTimer = 0f;
             IncomeGenerated?.Invoke(goldPerTick);
         }
+
+        private static bool IsGameRunning =>
+            GameState.Current == null || GameState.Current.IsPlaying;
 
         private void OnHealthDied()
         {

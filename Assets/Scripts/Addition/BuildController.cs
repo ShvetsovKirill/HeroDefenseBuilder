@@ -1,149 +1,197 @@
+using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using HeroDefense.Core;
 using HeroDefense.Economy;
+using HeroDefense.Enemies;
 
 namespace HeroDefense.Building
 {
     /// <summary>
-    /// Обработка строительства: клик по слоту -> проверка золота -> постройка.
+    /// Строительство: король подъезжает к слоту — открывается панель выбора.
     ///
-    /// Ввод здесь намеренно один — клик/тап по точке экрана.
-    /// Это то же ограничение, что и с флагами (D12): всё управление должно
-    /// сводиться к одиночным тапам, иначе на телефоне играть невозможно.
+    /// Почему по подъезду, а не по клику: король — физический курсор игры,
+    /// как и с флагами (D12). Нельзя застроить дальний угол, не съездив туда,
+    /// и на тач не надо целиться пальцем в мелкий слот.
+    ///
+    /// Панель с карточками вместо клавиш: типов построек будет больше четырёх,
+    /// а клавиатурные слоты кончаются и не переносятся на тач.
     /// </summary>
     public sealed class BuildController : MonoBehaviour
     {
-        [Header("Что строим")]
-        [Tooltip("Пока один тип на всё. Позже — выбор типа постройки.")]
-        [SerializeField] private BuildingDefinition currentBuilding;
+        [Header("Каталог")]
+        [Tooltip("Все постройки, доступные игроку. Порядок = порядок карточек.")]
+        [SerializeField] private BuildingDefinition[] catalog = Array.Empty<BuildingDefinition>();
 
-        [Header("Ссылки")]
-        [SerializeField] private Wallet wallet;
-        [SerializeField] private Camera worldCamera;
-
-        [Header("Клик")]
-        [Tooltip("Слой, на котором лежат слоты. Ограничивает raycast, " +
-                 "чтобы клик не ловил врагов и землю.")]
-        [SerializeField] private LayerMask slotLayer = ~0;
-
-        [SerializeField] private float maxRayDistance = 200f;
+        [Header("Взаимодействие")]
+        [Tooltip("На каком расстоянии от слота открывается панель. " +
+                 "Король подъезжает к слоту, а не встаёт в него — " +
+                 "поэтому здание не выталкивает его при постройке.")]
+        [SerializeField] private float interactionRadius = 3f;
 
         private BuildSlot[] _slots;
+        private BuildSlot _focusedSlot;
+
+        /// <summary>Слот, рядом с которым сейчас король. null — панель закрыта.</summary>
+        public BuildSlot FocusedSlot => _focusedSlot;
+
+        public BuildingDefinition[] Catalog => catalog;
+
+        /// <summary>Король подъехал к слоту или отъехал. null = закрыть панель.</summary>
+        public event Action<BuildSlot> FocusChanged;
+
+        /// <summary>Что-то построено. Слушает FlagController, чтобы добавить флаг казармы.</summary>
+        public event Action<GameObject> BuildingPlaced;
+
+        // Общие системы карты живут в SceneContext и только там.
+        // Дублировать их полями в инспекторе — значит завести второй
+        // источник правды: назначил одно, работает другое.
+        private static Transform King => SceneContext.Current?.King;
+        private static Wallet Purse => SceneContext.Current?.Wallet;
+        private static EnemyManager Enemies => SceneContext.Current?.EnemyManager;
 
         private void Awake()
         {
-            EnsureInitialized();
-        }
-
-        /// <summary>
-        /// Сбор ссылок. Вызывается и из Awake, и из OnEnable —
-        /// порядок между ними в Unity зависит от того, был ли объект
-        /// активен при загрузке сцены, полагаться на него нельзя.
-        /// </summary>
-        private void EnsureInitialized()
-        {
-            if (_slots != null)
-                return;
-
-            if (worldCamera == null)
-                worldCamera = Camera.main;
-
+            // Слоты ищем один раз: они статичны в пределах карты
+            // и создаются вместе с ней.
             _slots = FindObjectsByType<BuildSlot>(FindObjectsSortMode.None);
-        }
-
-        private void OnEnable()
-        {
-            EnsureInitialized();
-
-            if (wallet != null)
-                wallet.GoldChanged += OnGoldChanged;
-
-            RefreshSlotHighlights();
-        }
-
-        private void OnDisable()
-        {
-            if (wallet != null)
-                wallet.GoldChanged -= OnGoldChanged;
-        }
-
-        /// <summary>
-        /// Повторный пересчёт: к моменту Start все Awake сцены гарантированно
-        /// отработали, значит кошелёк и слоты точно готовы.
-        /// </summary>
-        private void Start()
-        {
-            RefreshSlotHighlights();
         }
 
         private void Update()
         {
-            HandleClick();
+            UpdateFocus();
+            UpdateHighlights();
         }
 
-        private void OnGoldChanged(int _)
-        {
-            RefreshSlotHighlights();
-        }
+        // ---------- Фокус ----------
 
-        /// <summary>
-        /// Пересчёт подсветки. Вызывается по событию, а не каждый кадр:
-        /// "по карману ли" меняется только при изменении баланса
-        /// или при застройке слота.
-        /// </summary>
-        private void RefreshSlotHighlights()
+        private void UpdateFocus()
         {
-            if (wallet == null || currentBuilding == null || _slots == null)
+            BuildSlot nearest = IsGameRunning ? FindNearestFreeSlot() : null;
+
+            if (nearest == _focusedSlot)
                 return;
 
-            bool canAfford = wallet.CanAfford(currentBuilding.cost);
+            _focusedSlot = nearest;
+            FocusChanged?.Invoke(_focusedSlot);
+        }
+
+        private static bool IsGameRunning =>
+            GameState.Current == null || GameState.Current.IsPlaying;
+
+        private BuildSlot FindNearestFreeSlot()
+        {
+            Transform monarch = King;
+
+            if (monarch == null)
+                return null;
+
+            float bestSqr = interactionRadius * interactionRadius;
+            BuildSlot best = null;
 
             for (int i = 0; i < _slots.Length; i++)
-                _slots[i].UpdateHighlight(canAfford);
+            {
+                BuildSlot slot = _slots[i];
+
+                if (slot == null || slot.IsOccupied)
+                    continue;
+
+                Vector3 delta = slot.BuildPosition - monarch.position;
+                delta.y = 0f;
+
+                float distanceSqr = delta.sqrMagnitude;
+
+                if (distanceSqr >= bestSqr)
+                    continue;
+
+                bestSqr = distanceSqr;
+                best = slot;
+            }
+
+            return best;
         }
 
-        private void HandleClick()
+        // ---------- Подсветка ----------
+
+        private void UpdateHighlights()
         {
-            Mouse mouse = Mouse.current;
-
-            if (mouse == null || !mouse.leftButton.wasPressedThisFrame)
-                return;
-
-            BuildSlot slot = RaycastSlot(mouse.position.ReadValue());
-
-            if (slot != null)
-                TryBuild(slot);
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                if (_slots[i] != null)
+                    _slots[i].SetHighlight(ResolveState(_slots[i]));
+            }
         }
 
-        private BuildSlot RaycastSlot(Vector2 screenPosition)
+        private BuildSlot.HighlightState ResolveState(BuildSlot slot)
         {
-            if (worldCamera == null)
-                return null;
-
-            Ray ray = worldCamera.ScreenPointToRay(screenPosition);
-
-            if (!Physics.Raycast(ray, out RaycastHit hit, maxRayDistance, slotLayer))
-                return null;
-
-            return hit.collider.GetComponentInParent<BuildSlot>();
-        }
-
-        private void TryBuild(BuildSlot slot)
-        {
-            if (currentBuilding == null || wallet == null)
-                return;
-
             if (slot.IsOccupied)
-                return;
+                return BuildSlot.HighlightState.Occupied;
 
-            if (!wallet.TrySpend(currentBuilding.cost))
-                return;
+            if (slot != _focusedSlot)
+                return BuildSlot.HighlightState.Free;
 
-            slot.Place(currentBuilding);
+            return slot.IsContested(Enemies)
+                ? BuildSlot.HighlightState.Blocked
+                : BuildSlot.HighlightState.Focused;
+        }
 
-            // TrySpend уже дёрнул GoldChanged, но слот стал занят
-            // после этого — обновляем ещё раз, чтобы он погас.
-            RefreshSlotHighlights();
+        // ---------- Постройка ----------
+
+        /// <summary>
+        /// Хватает ли золота. Отдельно от CanBuild: карточка показывает
+        /// нехватку денег и запрет из-за боя по-разному.
+        /// </summary>
+        public bool CanAfford(BuildingDefinition definition)
+        {
+            Wallet purse = Purse;
+
+            return definition != null && purse != null && purse.CanAfford(definition.cost);
+        }
+
+        /// <summary>Может ли игрок построить это прямо сейчас. Для состояния карточки.</summary>
+        public bool CanBuild(BuildingDefinition definition, out string reason)
+        {
+            reason = string.Empty;
+
+            if (_focusedSlot == null || definition == null)
+            {
+                reason = "Нет слота";
+                return false;
+            }
+
+            if (_focusedSlot.IsContested(Enemies))
+            {
+                reason = "Идёт бой";
+                return false;
+            }
+
+            if (!CanAfford(definition))
+            {
+                reason = "Не хватает золота";
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>Вызывается карточкой в панели.</summary>
+        public bool TryBuild(BuildingDefinition definition)
+        {
+            if (!CanBuild(definition, out _))
+                return false;
+
+            if (!Purse.TrySpend(definition.cost))
+                return false;
+
+            GameObject placed = _focusedSlot.Place(definition);
+
+            if (placed != null)
+                BuildingPlaced?.Invoke(placed);
+
+            // Слот занят — фокус снимается, панель закроется.
+            _focusedSlot = null;
+            FocusChanged?.Invoke(null);
+
+            return true;
         }
     }
 }

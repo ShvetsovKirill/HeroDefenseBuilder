@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroDefense.Core;
 using HeroDefense.Enemies;
 
 namespace HeroDefense.Combat
@@ -6,12 +7,17 @@ namespace HeroDefense.Combat
     /// <summary>
     /// Автоматическая атака по ближайшему врагу.
     ///
-    /// Один компонент и для героя, и для башен — логика у них одинаковая,
-    /// отличаются только числа. Это заодно значит, что апгрейды урона
-    /// и скорострельности позже будут работать для обоих одинаково.
+    /// Один компонент и для героя, и для башен, и для бойцов отряда —
+    /// логика одинаковая, отличаются только числа. Значит и апгрейды урона
+    /// со скорострельностью будут работать для всех одинаково.
     ///
-    /// Урон мгновенный (хитскан). Снаряды с полётом добавим, когда станет
-    /// понятно, нужны ли они для читаемости — пока это лишние объекты в сцене.
+    /// Два режима поиска цели:
+    ///   • сам ищет ближайшего (герой, башни);
+    ///   • получает цель извне через SetTargetProvider (бойцы отряда).
+    /// Второй нужен, чтобы боец не бежал к одному врагу, стреляя в другого.
+    ///
+    /// Урон мгновенный (хитскан). Снаряды с полётом добавим, если окажется,
+    /// что без них хуже читается — пока это лишние объекты в сцене.
     /// </summary>
     public sealed class AutoAttacker : MonoBehaviour
     {
@@ -24,31 +30,32 @@ namespace HeroDefense.Combat
         [SerializeField] private float range = 10f;
 
         [Header("Поиск цели")]
-        [Tooltip("Как часто искать новую цель, в секундах. " +
-                 "Каждый кадр не нужно: перебор по сотням врагов стоит дорого, " +
-                 "а цель не меняется настолько часто.")]
+        [Tooltip("Как часто искать новую цель. Каждый кадр не нужно: " +
+                 "перебор стоит дорого, а цель меняется редко.")]
         [SerializeField] private float retargetInterval = 0.2f;
+
+        [Tooltip("Искать цель самостоятельно. Герой и башни — да. " +
+                 "Боец отряда — нет: SquadUnit отключает это в Awake, " +
+                 "чтобы юнит не бежал к одному врагу, стреляя в другого.")]
+        [SerializeField] private bool searchOwnTarget = true;
 
         [Header("Визуал")]
         [Tooltip("Откуда идёт выстрел. Пусто = центр объекта.")]
         [SerializeField] private Transform muzzle;
 
-        [Tooltip("Линия выстрела. Необязательно — без неё стрельба просто невидима.")]
+        [Tooltip("Линия выстрела. Необязательно — без неё стрельба невидима.")]
         [SerializeField] private LineRenderer shotLine;
 
         [SerializeField] private float shotLineDuration = 0.05f;
-
-        [Header("Ссылки")]
-        [SerializeField] private EnemyManager enemyManager;
 
         private Enemy _target;
 
         /// <summary>
         /// Поколение цели на момент захвата.
         ///
-        /// Враг живёт в пуле: умер — вернулся — выдан заново уже как другой юнит.
-        /// Ссылка при этом остаётся валидной, и без сверки поколений
-        /// мы продолжили бы стрелять "в того же врага", который на деле новый.
+        /// Враг живёт в пуле: умер — вернулся — выдан заново другим юнитом.
+        /// Ссылка остаётся валидной, поэтому без сверки поколений мы бы
+        /// продолжили стрелять «в того же врага», который на деле новый.
         /// </summary>
         private int _targetVersion;
 
@@ -56,31 +63,52 @@ namespace HeroDefense.Combat
         private float _cooldownTimer;
         private float _shotLineTimer;
 
-        /// <summary>Текущая цель — пригодится для поворота модели в сторону стрельбы.</summary>
+        /// <summary>Текущая цель — для поворота модели в сторону стрельбы.</summary>
         public Enemy CurrentTarget => _target;
 
         private void Awake()
         {
-            if (enemyManager == null)
-                enemyManager = FindFirstObjectByType<EnemyManager>();
-
             if (shotLine != null)
                 shotLine.enabled = false;
         }
 
+        /// <summary>
+        /// Перевести в режим внешнего управления целью.
+        /// Вызывает SquadUnit: боец сам решает, кого бить,
+        /// чтобы движение и стрельба смотрели в одну сторону.
+        /// </summary>
+        public void TakeTargetControl()
+        {
+            searchOwnTarget = false;
+            _target = null;
+            _targetVersion = 0;
+        }
+
+        /// <summary>Назначить цель извне. Работает только после TakeTargetControl.</summary>
+        public void SetTarget(Enemy target)
+        {
+            _target = target;
+            _targetVersion = target != null ? target.Version : 0;
+        }
+
         private void Update()
         {
-            if (enemyManager == null)
+            if (!IsGameRunning)
                 return;
 
-            UpdateTarget();
+            if (searchOwnTarget)
+                UpdateOwnTarget();
+
             UpdateFiring();
             UpdateShotLine();
         }
 
+        private static bool IsGameRunning =>
+            GameState.Current == null || GameState.Current.IsPlaying;
+
         // ---------- Цель ----------
 
-        private void UpdateTarget()
+        private void UpdateOwnTarget()
         {
             _retargetTimer -= Time.deltaTime;
 
@@ -88,7 +116,15 @@ namespace HeroDefense.Combat
                 return;
 
             _retargetTimer = retargetInterval;
-            _target = enemyManager.FindNearest(transform.position, range);
+
+            EnemyManager manager = SceneContext.Current != null
+                ? SceneContext.Current.EnemyManager
+                : null;
+
+            if (manager == null)
+                return;
+
+            _target = manager.FindNearest(transform.position, range);
             _targetVersion = _target != null ? _target.Version : 0;
         }
 
@@ -97,7 +133,7 @@ namespace HeroDefense.Combat
             if (_target == null || !_target.IsAlive)
                 return false;
 
-            // Объект тот же, но из пула его уже выдали под другого врага.
+            // Объект тот же, но из пула его выдали под другого врага.
             if (_target.Version != _targetVersion)
                 return false;
 

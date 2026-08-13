@@ -32,10 +32,13 @@ namespace HeroDefense.Waves.EditorTools
 
             EditorGUILayout.Space();
 
+            // Своего шрифта здесь намеренно нет: Font.CreateDynamicFontFromOSFont
+            // создавал бы новый объект при каждой отрисовке инспектора,
+            // а Unity чистит их при перезагрузке скриптов с предупреждениями.
             var style = new GUIStyle(EditorStyles.textArea)
             {
-                font = Font.CreateDynamicFontFromOSFont("Courier New", 11),
-                wordWrap = false
+                wordWrap = false,
+                richText = false
             };
 
             EditorGUILayout.TextArea(_preview, style);

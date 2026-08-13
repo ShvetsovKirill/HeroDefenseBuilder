@@ -66,12 +66,18 @@ namespace HeroDefense.Enemies
 
         private void Update()
         {
+            if (!IsGameRunning)
+                return;
+
             float deltaTime = Time.deltaTime;
 
             RebuildGrid();
             CalculateSeparation();
             ApplyBehaviour(deltaTime);
         }
+
+        private static bool IsGameRunning =>
+            GameState.Current == null || GameState.Current.IsPlaying;
 
         // ---------- Расталкивание ----------
 
@@ -288,6 +294,7 @@ namespace HeroDefense.Enemies
             }
 
             _alive.Clear();
+            _separationOffsets.Clear();
         }
 
         // ---------- Поиск целей ----------
