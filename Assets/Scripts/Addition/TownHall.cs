@@ -1,86 +1,84 @@
 using System;
 using UnityEngine;
-using HeroDefense.Enemies;
+using HeroDefense.Core;
 
 namespace HeroDefense.Base
 {
     /// <summary>
     /// Ратуша. Единственное условие поражения в игре (D2 — герой бессмертен).
     ///
-    /// Слушает EnemyManager: враг, дошедший до цели, наносит урон и исчезает.
-    /// Позже враги будут не исчезать, а атаковать ратушу стоя рядом —
-    /// но для прототипа мгновенный урон достаточен и проще.
+    /// Вся логика урона живёт в Health — ратуша отличается от шахты
+    /// не механикой, а только последствиями разрушения (D40).
+    /// Этот компонент нужен, чтобы врагам и системам было за что зацепиться,
+    /// и чтобы отличить "критическое здание" от обычного.
+    ///
+    /// Урон наносят сами враги, подойдя вплотную (осада) — ратуша
+    /// ничего не знает о том, кто её бьёт.
     /// </summary>
+    [RequireComponent(typeof(Health))]
     public sealed class TownHall : MonoBehaviour
     {
-        [Header("Здоровье")]
-        [SerializeField] private float maxHealth = 1000f;
+        [Header("Пассивный доход")]
+        [Tooltip("Сколько золота приносит ратуша за один тик (D45). " +
+                 "Это нижний порог дохода, чтобы игрок не застревал в нуле.")]
+        [SerializeField] private int goldPerTick = 2;
 
-        [Tooltip("Урон от одного дошедшего врага. Позже возьмётся из данных врага.")]
-        [SerializeField] private float damagePerEnemy = 10f;
+        [Tooltip("Интервал между начислениями, секунды.")]
+        [SerializeField] private float incomeInterval = 15f;
 
-        [Header("Ссылки")]
-        [SerializeField] private EnemyManager enemyManager;
+        private Health _health;
+        private float _incomeTimer;
 
-        /// <summary>Текущее и максимальное здоровье — для полоски и отладки.</summary>
-        public float CurrentHealth { get; private set; }
-        public float MaxHealth => maxHealth;
-        public float HealthFraction => maxHealth > 0f ? CurrentHealth / maxHealth : 0f;
-        public bool IsDestroyed => CurrentHealth <= 0f;
-
-        /// <summary>Ратуша получила урон. Для VFX, тряски камеры, звука (D2 — обратная связь громкая).</summary>
-        public event Action<float> Damaged;
+        public Health Health => _health;
 
         /// <summary>Ратуша разрушена — конец игры.</summary>
         public event Action Destroyed;
 
+        /// <summary>Пассивный доход начислен. Аргумент — сумма.</summary>
+        public event Action<int> IncomeGenerated;
+
         private void Awake()
         {
-            CurrentHealth = maxHealth;
+            _health = GetComponent<Health>();
         }
 
         private void OnEnable()
         {
-            if (enemyManager != null)
-                enemyManager.ReachedTarget += OnEnemyReached;
+            _health.Died += OnHealthDied;
         }
 
         private void OnDisable()
         {
-            if (enemyManager != null)
-                enemyManager.ReachedTarget -= OnEnemyReached;
+            _health.Died -= OnHealthDied;
         }
 
-        private void OnEnemyReached(Enemy enemy)
+        private void Update()
         {
-            TakeDamage(damagePerEnemy);
+            TickIncome(Time.deltaTime);
         }
 
-        public void TakeDamage(float amount)
+        /// <summary>
+        /// Пассивный доход идёт, даже когда всё остальное разрушено (D44).
+        /// Это предохранитель от спирали поражения: потерял постройки —
+        /// всё ещё есть на что отстроиться.
+        /// </summary>
+        private void TickIncome(float deltaTime)
         {
-            if (IsDestroyed)
+            if (!_health.IsAlive)
                 return;
 
-            CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
-            Damaged?.Invoke(amount);
+            _incomeTimer += deltaTime;
 
-            if (CurrentHealth <= 0f)
-                Destroyed?.Invoke();
-        }
-
-        /// <summary>Починка — понадобится для способности ремонта (эпик 2.4).</summary>
-        public void Heal(float amount)
-        {
-            if (IsDestroyed)
+            if (_incomeTimer < incomeInterval)
                 return;
 
-            CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
+            _incomeTimer = 0f;
+            IncomeGenerated?.Invoke(goldPerTick);
         }
 
-        /// <summary>Полный сброс — для рестарта карты.</summary>
-        public void ResetHealth()
+        private void OnHealthDied()
         {
-            CurrentHealth = maxHealth;
+            Destroyed?.Invoke();
         }
     }
 }
