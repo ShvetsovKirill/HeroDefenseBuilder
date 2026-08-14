@@ -44,6 +44,10 @@
 ExportedObj/
 .consulo/
 *.csproj
+# Исключение: эти два проекта написаны руками, а не сгенерированы Unity.
+# Проверка компиляции без запуска редактора, см. CLAUDE.md.
+!CompileCheck.csproj
+!CompileCheck.Editor.csproj
 *.unityproj
 *.sln
 *.slnx

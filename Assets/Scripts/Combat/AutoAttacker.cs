@@ -66,6 +66,21 @@ namespace HeroDefense.Combat
         /// <summary>Текущая цель — для поворота модели в сторону стрельбы.</summary>
         public Enemy CurrentTarget => _target;
 
+        /// <summary>Дальность — нужна снаружи, например для отрисовки радиуса башни.</summary>
+        public float Range => range;
+
+        /// <summary>
+        /// Задать параметры извне. Используется KingCombatBinder:
+        /// у короля числа живут в KingStats, потому что их меняет прокачка.
+        /// Башни и бойцы отряда настраиваются полями в инспекторе и это не зовут.
+        /// </summary>
+        public void Configure(float newDamage, float newFireRate, float newRange)
+        {
+            damage = newDamage;
+            fireRate = Mathf.Max(0.01f, newFireRate);
+            range = Mathf.Max(0f, newRange);
+        }
+
         private void Awake()
         {
             if (shotLine != null)

@@ -42,6 +42,34 @@ namespace HeroDefense.Waves
         /// <summary>Сколько секунд осталось до следующей волны. Для HUD.</summary>
         public float BreakTimeLeft { get; private set; }
 
+        /// <summary>
+        /// Прогресс текущей волны, 0..1. Для слайдера в HUD.
+        ///
+        /// Считается по убитым врагам от общего числа в волне, а не по времени:
+        /// игрок должен видеть, сколько осталось перебить, а не сколько
+        /// осталось ждать. Волна с двумя бугаями и волна с двадцатью роевыми
+        /// идут разное время, но полоска в обоих случаях читается одинаково.
+        /// </summary>
+        public float WaveProgress
+        {
+            get
+            {
+                if (_currentWaveTotal <= 0)
+                    return IsBreak ? 1f : 0f;
+
+                return Mathf.Clamp01(_currentWaveKilled / (float)_currentWaveTotal);
+            }
+        }
+
+        /// <summary>Сколько врагов в текущей волне всего. Для счётчика в HUD.</summary>
+        public int CurrentWaveTotal => _currentWaveTotal;
+
+        /// <summary>Сколько уже убито в текущей волне.</summary>
+        public int CurrentWaveKilled => _currentWaveKilled;
+
+        private int _currentWaveTotal;
+        private int _currentWaveKilled;
+
         /// <summary>Началась новая волна. Аргумент — её номер с единицы.</summary>
         public event Action<int> WaveStarted;
 
@@ -57,6 +85,23 @@ namespace HeroDefense.Waves
         {
             if (autoStart)
                 StartLevel();
+        }
+
+        private void OnEnable()
+        {
+            if (enemyManager != null)
+                enemyManager.EnemyKilled += OnEnemyKilled;
+        }
+
+        private void OnDisable()
+        {
+            if (enemyManager != null)
+                enemyManager.EnemyKilled -= OnEnemyKilled;
+        }
+
+        private void OnEnemyKilled(Enemy _)
+        {
+            _currentWaveKilled++;
         }
 
         public void StartLevel()
@@ -114,6 +159,10 @@ namespace HeroDefense.Waves
                     continue;
 
                 CurrentWaveNumber = i + 1;
+
+                _currentWaveTotal = wave.TotalEnemies;
+                _currentWaveKilled = 0;
+
                 WaveStarted?.Invoke(CurrentWaveNumber);
 
                 yield return RunWave(wave);

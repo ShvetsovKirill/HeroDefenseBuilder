@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  То же, что CompileCheck.csproj, но для Editor-скриптов
+  (превью волн и прочий инструментарий дизайнера):
+
+      dotnet build CompileCheck.Editor.csproj
+
+  Собирает и рантайм тоже — через ссылку на CompileCheck.csproj.
+  Штатная ссылка на Assembly-CSharp.csproj здесь не годится: она собрала бы
+  рантайм по устаревшему перечню файлов, и editor-скрипт, использующий
+  свежесозданный класс, упал бы на ровном месте.
+-->
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="Assembly-CSharp-Editor.csproj" />
+
+  <ItemGroup>
+    <Compile Remove="Assets\**\*.cs" />
+    <Compile Include="Assets\**\Editor\**\*.cs" />
+
+    <ProjectReference Remove="Assembly-CSharp.csproj" />
+    <ProjectReference Include="CompileCheck.csproj" />
+  </ItemGroup>
+
+</Project>
