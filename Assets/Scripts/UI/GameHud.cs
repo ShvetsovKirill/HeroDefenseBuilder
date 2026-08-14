@@ -1,51 +1,97 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using HeroDefense.Base;
 using HeroDefense.Core;
 using HeroDefense.Economy;
-using HeroDefense.Enemies;
+using HeroDefense.Squads;
 using HeroDefense.Waves;
 
 namespace HeroDefense.UI
 {
     /// <summary>
-    /// Игровой HUD на TextMeshPro.
+    /// Игровой HUD.
     ///
-    /// Заменяет отладочный OnGUI: тот годился, пока цифры смотрел только
-    /// разработчик, но OnGUI не масштабируется, не настраивается
-    /// и вызывается по нескольку раз за кадр.
+    /// Ссылки на системы берутся из SceneContext, поля разметки назначаются
+    /// вручную: HUD знает про свою вёрстку, но не про то, где на сцене лежит
+    /// кошелёк.
     ///
-    /// Пока это просто текст. Полоски, иконки и диегетичные индикаторы
-    /// придут на этапе UI — но уже поверх нормального Canvas.
+    /// Постоянного счётчика врагов и полоски HP ратуши здесь нет намеренно.
+    /// Число живых врагов не отвечает ни на один вопрос игрока: «много ли
+    /// осталось» показывает слайдер, «где они» — сама карта. А состояние
+    /// ратуши нужно знать ровно в один момент — когда до неё добрались,
+    /// а ты на другом конце поляны. Поэтому вместо индикатора — сигнал.
     /// </summary>
     public sealed class GameHud : MonoBehaviour
     {
-        [Header("Данные")]
-        [SerializeField] private TownHall townHall;
-        [SerializeField] private EnemyManager enemyManager;
-        [SerializeField] private Wallet wallet;
+        [Header("Системы")]
         [SerializeField] private WaveRunner waveRunner;
-        [SerializeField] private GameLoop gameLoop;
 
-        [Header("Элементы")]
+        [Header("Ресурсы")]
         [SerializeField] private TMP_Text goldText;
-        [SerializeField] private TMP_Text waveText;
-        [SerializeField] private TMP_Text enemyCountText;
 
-        [Tooltip("Полоска здоровья ратуши. Заполнение задаётся через fillAmount.")]
-        [SerializeField] private UnityEngine.UI.Image townHallFill;
+        [Tooltip("Счётчик живых бойцов отрядов.")]
+        [SerializeField] private TMP_Text armyText;
 
+        [Tooltip("Опыт. Пока заглушка: в бою ресурс один — золото (D31). " +
+                 "Опыт появится вместе с метой (D78).")]
+        [SerializeField] private TMP_Text xpText;
+
+        [Header("Волна")]
+        [SerializeField] private TMP_Text waveCountText;
+
+        [Tooltip("Строка под номером волны: таймер паузы или прогресс.")]
+        [SerializeField] private TMP_Text nextWaveCountText;
+
+        [Tooltip("Доля перебитых врагов волны. Не время: волна из двух бугаёв " +
+                 "и волна из двадцати роевых идут разное время, но полоска " +
+                 "в обоих случаях читается одинаково.")]
+        [SerializeField] private Slider waveProgressSlider;
+
+        [Header("Король")]
+        [SerializeField] private TMP_Text kingNameText;
+
+        [Header("Тревога ратуши")]
+        [Tooltip("Красная рамка по краю экрана. Появляется только когда ратушу " +
+                 "бьют — это и есть «громкая обратная связь» из D2.")]
+        [SerializeField] private CanvasGroup damageVignette;
+
+        [Tooltip("Сколько секунд тревога держится после последнего удара.")]
+        [SerializeField] private float alarmHoldTime = 1.5f;
+
+        [Tooltip("Скорость появления и затухания.")]
+        [SerializeField] private float alarmFadeSpeed = 4f;
+
+        [Tooltip("Текст с HP ратуши. Показывается только во время тревоги. " +
+                 "Необязательно.")]
         [SerializeField] private TMP_Text townHallText;
 
-        [Header("Поражение")]
+        [Header("Модальные экраны")]
         [SerializeField] private GameObject gameOverRoot;
+        [SerializeField] private GameObject victoryRoot;
 
-        private Health TownHallHealth => townHall != null ? townHall.Health : null;
+        private float _alarmTimer;
 
-        private void OnEnable()
+        private Wallet Wallet => SceneContext.Current?.Wallet;
+        private TownHall Hall => SceneContext.Current?.TownHall;
+
+        // Start, а не OnEnable: SceneContext должен успеть зарегистрироваться.
+        private void Start()
         {
-            if (wallet != null)
-                wallet.GoldChanged += OnGoldChanged;
+            Subscribe();
+            RefreshStatic();
+            HideAlarmInstantly();
+        }
+
+        private void OnDestroy()
+        {
+            Unsubscribe();
+        }
+
+        private void Subscribe()
+        {
+            if (Wallet != null)
+                Wallet.GoldChanged += OnGoldChanged;
 
             if (waveRunner != null)
             {
@@ -53,88 +99,184 @@ namespace HeroDefense.UI
                 waveRunner.WaveCleared += OnWaveChanged;
             }
 
-            if (gameLoop != null)
-                SetGameOverVisible(gameLoop.IsGameOver);
+            if (Hall != null && Hall.Health != null)
+                Hall.Health.Damaged += OnTownHallDamaged;
 
-            RefreshAll();
+            SquadRegistry.Changed += UpdateArmyCount;
         }
 
-        private void OnDisable()
+        private void Unsubscribe()
         {
-            if (wallet != null)
-                wallet.GoldChanged -= OnGoldChanged;
+            if (Wallet != null)
+                Wallet.GoldChanged -= OnGoldChanged;
 
             if (waveRunner != null)
             {
                 waveRunner.WaveStarted -= OnWaveChanged;
                 waveRunner.WaveCleared -= OnWaveChanged;
             }
+
+            if (Hall != null && Hall.Health != null)
+                Hall.Health.Damaged -= OnTownHallDamaged;
+
+            SquadRegistry.Changed -= UpdateArmyCount;
         }
 
         private void Update()
         {
-            // Эти три меняются постоянно, событиями их не покрыть дёшево.
-            UpdateTownHall();
-            UpdateEnemyCount();
-            UpdateWaveTimer();
-
-            if (gameLoop != null)
-                SetGameOverVisible(gameLoop.IsGameOver);
+            UpdateWaveLine();
+            UpdateWaveProgress();
+            UpdateAlarm();
+            UpdateModals();
         }
 
-        private void RefreshAll()
+        /// <summary>То, что меняется редко и обновляется по событиям.</summary>
+        private void RefreshStatic()
         {
             UpdateGold();
-            UpdateTownHall();
-            UpdateEnemyCount();
-            UpdateWaveTimer();
+            UpdateWaveNumber();
+            UpdateKingName();
+            UpdateArmyCount();
         }
 
-        // ---------- Обновления ----------
+        // ---------- Ресурсы ----------
 
         private void OnGoldChanged(int _) => UpdateGold();
-        private void OnWaveChanged(int _) => UpdateWaveTimer();
 
         private void UpdateGold()
         {
-            if (goldText != null && wallet != null)
-                goldText.text = wallet.Gold.ToString();
+            if (goldText != null && Wallet != null)
+                goldText.text = Wallet.Gold.ToString();
         }
 
-        private void UpdateTownHall()
+        /// <summary>
+        /// Живые бойцы всех отрядов.
+        ///
+        /// Считается по событию, а не каждый кадр: раньше здесь был
+        /// FindObjectsByType, сканировавший всю сцену 60 раз в секунду.
+        /// </summary>
+        private void UpdateArmyCount()
         {
-            Health health = TownHallHealth;
+            if (armyText != null)
+                armyText.text = SquadRegistry.TotalAliveUnits.ToString();
+        }
 
-            if (health == null)
+        // ---------- Волна ----------
+
+        private void OnWaveChanged(int _) => UpdateWaveNumber();
+
+        private void UpdateWaveNumber()
+        {
+            if (waveCountText != null && waveRunner != null)
+                waveCountText.text = $"Волна {waveRunner.CurrentWaveNumber}";
+        }
+
+        private void UpdateWaveLine()
+        {
+            if (nextWaveCountText == null || waveRunner == null)
                 return;
 
-            if (townHallFill != null)
-                townHallFill.fillAmount = health.Fraction;
+            nextWaveCountText.text = waveRunner.IsBreak
+                ? $"До следующей волны: {FormatTime(waveRunner.BreakTimeLeft)}"
+                : $"Волна {waveRunner.CurrentWaveNumber} из {waveRunner.TotalWaves}";
+        }
+
+        private static string FormatTime(float seconds)
+        {
+            int total = Mathf.Max(0, Mathf.CeilToInt(seconds));
+
+            return $"{total / 60}:{total % 60:00}";
+        }
+
+        private void UpdateWaveProgress()
+        {
+            if (waveProgressSlider != null && waveRunner != null)
+                waveProgressSlider.value = waveRunner.WaveProgress;
+        }
+
+        // ---------- Король ----------
+
+        private void UpdateKingName()
+        {
+            if (kingNameText == null)
+                return;
+
+            Transform king = SceneContext.Current?.King;
+
+            if (king == null)
+                return;
+
+            var component = king.GetComponent<King.King>();
+
+            if (component != null && component.Definition != null)
+                kingNameText.text = component.Definition.displayName;
+        }
+
+        // ---------- Тревога ----------
+
+        private void OnTownHallDamaged(float amount)
+        {
+            _alarmTimer = alarmHoldTime;
+        }
+
+        private void UpdateAlarm()
+        {
+            if (damageVignette == null)
+                return;
+
+            _alarmTimer -= Time.deltaTime;
+
+            float target = _alarmTimer > 0f ? 1f : 0f;
+
+            damageVignette.alpha = Mathf.MoveTowards(
+                damageVignette.alpha, target, alarmFadeSpeed * Time.deltaTime);
+
+            UpdateAlarmText();
+        }
+
+        /// <summary>
+        /// Цифры HP показываем только во время тревоги: постоянный индикатор
+        /// висел бы фоном и перестал бы читаться.
+        /// </summary>
+        private void UpdateAlarmText()
+        {
+            if (townHallText == null)
+                return;
+
+            bool visible = damageVignette.alpha > 0.05f;
+
+            if (visible && Hall != null && Hall.Health != null)
+                townHallText.text = $"{Hall.Health.Current:F0} / {Hall.Health.Max:F0}";
+
+            SetActiveIfNeeded(townHallText.gameObject, visible);
+        }
+
+        private void HideAlarmInstantly()
+        {
+            if (damageVignette != null)
+                damageVignette.alpha = 0f;
 
             if (townHallText != null)
-                townHallText.text = $"{health.Current:F0} / {health.Max:F0}";
+                SetActiveIfNeeded(townHallText.gameObject, false);
         }
 
-        private void UpdateEnemyCount()
-        {
-            if (enemyCountText != null && enemyManager != null)
-                enemyCountText.text = enemyManager.AliveCount.ToString();
-        }
+        // ---------- Модальные экраны ----------
 
-        private void UpdateWaveTimer()
+        private void UpdateModals()
         {
-            if (waveText == null || waveRunner == null)
+            GameState state = GameState.Current;
+
+            if (state == null)
                 return;
 
-            waveText.text = waveRunner.IsBreak
-                ? $"Следующая волна: {waveRunner.BreakTimeLeft:F0}"
-                : $"Волна {waveRunner.CurrentWaveNumber} / {waveRunner.TotalWaves}";
+            SetActiveIfNeeded(gameOverRoot, state.Phase == GamePhase.Defeat);
+            SetActiveIfNeeded(victoryRoot, state.Phase == GamePhase.Victory);
         }
 
-        private void SetGameOverVisible(bool visible)
+        private static void SetActiveIfNeeded(GameObject target, bool visible)
         {
-            if (gameOverRoot != null && gameOverRoot.activeSelf != visible)
-                gameOverRoot.SetActive(visible);
+            if (target != null && target.activeSelf != visible)
+                target.SetActive(visible);
         }
     }
 }

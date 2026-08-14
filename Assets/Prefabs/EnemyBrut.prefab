@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 178c136253bd89746b2be7ae6a17df1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Enemies.Enemy
-  attackDamage: 10
-  attackRate: 0.5
+  attackDamage: 80
+  attackRate: 1
 --- !u!1001 &8970184536128802423
 PrefabInstance:
   m_ObjectHideFlags: 0

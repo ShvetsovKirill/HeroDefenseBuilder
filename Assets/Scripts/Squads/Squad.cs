@@ -87,6 +87,9 @@ namespace HeroDefense.Squads
             unit.Died += OnUnitDied;
 
             AssignFormationPositions();
+
+            // Прибыл новобранец — HUD пересчитает армию по событию.
+            SquadRegistry.NotifyChanged();
         }
 
         private void OnUnitDied(SquadUnit unit)

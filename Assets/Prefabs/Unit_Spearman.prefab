@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8688704216737040689}
   - component: {fileID: 3095934399394663474}
   - component: {fileID: 3515187987130771120}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,8 @@ GameObject:
   - component: {fileID: 5422233506633409903}
   - component: {fileID: 5121423348594837969}
   - component: {fileID: 7711097224426492057}
-  m_Layer: 0
+  - component: {fileID: 8296873622397207292}
+  m_Layer: 9
   m_Name: Unit_Spearman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,6 +123,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 936285458114056562}
   - {fileID: 8688704216737040689}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -137,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15a9eb8b45f63e4894a056160eedb4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Core.Health
-  maxHealth: 50
+  maxHealth: 35
 --- !u!114 &5422233506633409903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,13 +152,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b953f5119265b1e458ca1f231e2304fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Squads.SquadUnit
-  moveSpeed: 3.5
+  moveSpeed: 4
   engageRadius: 4
   meleeDistance: 1.2
   arriveTolerance: 0.6
   retargetInterval: 0.25
   separationRadius: 0.7
   separationStrength: 0.8
+  unitLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!114 &5121423348594837969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,7 +175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Combat.AutoAttacker
   damage: 8
-  fireRate: 1.5
+  fireRate: 1
   range: 1.5
   retargetInterval: 0.2
   searchOwnTarget: 1
@@ -200,3 +205,98 @@ CapsuleCollider:
   m_Height: 1.406491
   m_Direction: 1
   m_Center: {x: -0.0010075718, y: 0.6002352, z: 0}
+--- !u!114 &8296873622397207292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134119211721229495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c1f29ad2dd70a64b8c554f309d3c2c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.UI.DamageFlash
+  renderers: []
+  health: {fileID: 0}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  duration: 0.08
+  intensity: 0.7
+--- !u!1001 &1671567038942864261
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8703683714478582399}
+    m_Modifications:
+    - target: {fileID: 1949777900693464794, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3424127130768712505, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: heightOffset
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3643845621753377062, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5599641704123235390, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_Name
+      value: HealthBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 5599641704123235390, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+--- !u!4 &936285458114056562 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+  m_PrefabInstance: {fileID: 1671567038942864261}
+  m_PrefabAsset: {fileID: 0}

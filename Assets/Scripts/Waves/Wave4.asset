@@ -14,17 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Waves.WaveDefinition
   displayName: "\u0412\u043E\u043B\u043D\u0430 4"
   groups:
-  - enemy: {fileID: 11400000, guid: 198088aceccc52e43a7f298401bfba39, type: 2}
-    count: 3
+  - enemy: {fileID: 11400000, guid: a8fbfcf224840fd45a4390a01dc5568b, type: 2}
+    count: 5
     spawnPointIndex: 0
     startDelay: 0
-    interval: 0.5
+    interval: 1
+    burstSize: 1
+  - enemy: {fileID: 11400000, guid: e6c2a520bae3ee84faf539b61904cd88, type: 2}
+    count: 1
+    spawnPointIndex: 1
+    startDelay: 1
+    interval: 1
     burstSize: 1
   - enemy: {fileID: 11400000, guid: 198088aceccc52e43a7f298401bfba39, type: 2}
-    count: 3
+    count: 1
     spawnPointIndex: 2
-    startDelay: 1
-    interval: 0.5
+    startDelay: 2
+    interval: 1
     burstSize: 1
-  breakAfter: 6
+  breakAfter: 7
   waitForClear: 1

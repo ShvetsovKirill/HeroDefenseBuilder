@@ -912,17 +912,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07214c0233f26b04b95a804d710cc280, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.UI.GameHud
-  townHall: {fileID: 834019412}
-  enemyManager: {fileID: 1278628150}
-  wallet: {fileID: 1443675332}
   waveRunner: {fileID: 1038327350}
-  gameLoop: {fileID: 1278628153}
   goldText: {fileID: 1349359896}
-  waveText: {fileID: 1763787160}
-  enemyCountText: {fileID: 368385236}
-  townHallFill: {fileID: 896635030}
+  armyText: {fileID: 0}
+  xpText: {fileID: 0}
+  waveCountText: {fileID: 0}
+  nextWaveCountText: {fileID: 0}
+  waveProgressSlider: {fileID: 0}
+  kingNameText: {fileID: 0}
+  damageVignette: {fileID: 0}
+  alarmHoldTime: 1.5
+  alarmFadeSpeed: 4
   townHallText: {fileID: 2094010143}
   gameOverRoot: {fileID: 820982011}
+  victoryRoot: {fileID: 0}
 --- !u!114 &132142208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1498,17 +1501,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07214c0233f26b04b95a804d710cc280, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.UI.GameHud
-  townHall: {fileID: 834019412}
-  enemyManager: {fileID: 1278628150}
-  wallet: {fileID: 1443675332}
   waveRunner: {fileID: 1038327350}
-  gameLoop: {fileID: 1278628153}
   goldText: {fileID: 1308957441}
-  waveText: {fileID: 2036384838}
-  enemyCountText: {fileID: 502035153}
-  townHallFill: {fileID: 432794159}
+  armyText: {fileID: 502035153}
+  xpText: {fileID: 578988746}
+  waveCountText: {fileID: 2036384838}
+  nextWaveCountText: {fileID: 845598144}
+  waveProgressSlider: {fileID: 1812686273}
+  kingNameText: {fileID: 2054467166}
+  damageVignette: {fileID: 394889723}
+  alarmHoldTime: 1.5
+  alarmFadeSpeed: 4
   townHallText: {fileID: 2054467166}
   gameOverRoot: {fileID: 820982011}
+  victoryRoot: {fileID: 820982011}
 --- !u!4 &259880103 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 276482422356441904, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
@@ -2343,6 +2349,94 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
+--- !u!1 &394889719
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 394889720}
+  - component: {fileID: 394889722}
+  - component: {fileID: 394889721}
+  - component: {fileID: 394889723}
+  m_Layer: 5
+  m_Name: DamageVignette
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &394889720
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394889719}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2067165023}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &394889721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394889719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.554717, g: 0.27107868, b: 0.27107868, a: 0.23921569}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &394889722
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394889719}
+  m_CullTransparentMesh: 1
+--- !u!225 &394889723
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394889719}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &396742146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4947,6 +5041,7 @@ GameObject:
   - component: {fileID: 834019413}
   - component: {fileID: 834019412}
   - component: {fileID: 834019417}
+  - component: {fileID: 834019418}
   m_Layer: 0
   m_Name: TownHall
   m_TagString: Untagged
@@ -4966,8 +5061,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88b164527bc71284c9434f8b7cfb3b0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Base.TownHall
-  goldPerTick: 2
-  incomeInterval: 15
+  goldPerTick: 8
+  incomeInterval: 30
 --- !u!65 &834019413
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5051,6 +5146,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 441069137}
+  - {fileID: 1390471455}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &834019417
@@ -5065,7 +5161,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15a9eb8b45f63e4894a056160eedb4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Core.Health
-  maxHealth: 100
+  maxHealth: 600
+--- !u!114 &834019418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 834019411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c1f29ad2dd70a64b8c554f309d3c2c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.UI.DamageFlash
+  renderers: []
+  health: {fileID: 0}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  duration: 0.08
+  intensity: 0.7
 --- !u!1001 &841091338
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6088,10 +6201,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1812686272}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.25}
-  m_AnchorMax: {x: 1, y: 0.75}
-  m_AnchoredPosition: {x: -16.824999, y: 0}
-  m_SizeDelta: {x: -33.650005, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -0.0000019073486, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &954098294
 MonoBehaviour:
@@ -6122,7 +6235,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 0.6
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &954098295
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6885,10 +6998,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1812686272}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.25}
-  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 226, y: 42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1103253893
 MonoBehaviour:
@@ -7081,8 +7194,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1189418466}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 1, z: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: -3.02, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7090,7 +7203,7 @@ Transform:
   - {fileID: 1839816480}
   - {fileID: 152474277}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &1189418472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7632,6 +7745,11 @@ MonoBehaviour:
   pool: {fileID: 1278628151}
   mainTarget: {fileID: 834019417}
   attackDistance: 2.5
+  attackBlockingBuildings: 1
+  obstacleCheckRadius: 2.4
+  buildingLayer:
+    serializedVersion: 2
+    m_Bits: 256
   separationRadius: 1
   separationStrength: 0.6
   maxNeighbours: 8
@@ -8466,6 +8584,72 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
+--- !u!1001 &1390471454
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 834019416}
+    m_Modifications:
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3424127130768712505, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: heightOffset
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5599641704123235390, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_Name
+      value: HealthBar
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+--- !u!4 &1390471455 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+  m_PrefabInstance: {fileID: 1390471454}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1402643629
 GameObject:
   m_ObjectHideFlags: 0
@@ -8745,7 +8929,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff18682645b123448b170ea938e5b7a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Economy.Wallet
-  startingGold: 2000
+  startingGold: 120
   goldPerKill: 2
   enemyManager: {fileID: 1278628150}
   townHall: {fileID: 834019412}
@@ -8777,7 +8961,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 872ab30ce19cd1d498006f778a05e4a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Squads.FlagController
-  buildController: {fileID: 1443675333}
   carriedBanner: {fileID: 990185018}
   flagMarkerPrefab: {fileID: 3020580052063120111, guid: 8f79dc40228751e4183b03ff929a5d78, type: 3}
 --- !u!1001 &1457030819
@@ -11230,6 +11413,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1812686272}
+  - component: {fileID: 1812686273}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -11258,6 +11442,57 @@ RectTransform:
   m_AnchoredPosition: {x: -14.5, y: 0}
   m_SizeDelta: {x: 226.5, y: 33.89}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1812686273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812686271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 0
+  m_TargetGraphic: {fileID: 954098294}
+  m_FillRect: {fileID: 954098293}
+  m_HandleRect: {fileID: 0}
+  m_Direction: 0
+  m_MinValue: 0
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 1
+  m_OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1821518103
 GameObject:
   m_ObjectHideFlags: 0
@@ -11597,6 +11832,7 @@ GameObject:
   - component: {fileID: 1885523410}
   - component: {fileID: 1885523409}
   - component: {fileID: 1885523408}
+  - component: {fileID: 1885523411}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -11648,6 +11884,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1885523411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885523407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5092f398dcb815f48aed169f3d3e4477, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.BuildRegistry
 --- !u!1001 &1885675669
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12721,6 +12969,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 820982012}
+  - {fileID: 394889720}
   m_Father: {fileID: 252598202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

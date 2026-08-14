@@ -26,6 +26,19 @@ namespace HeroDefense.Enemies
         [Tooltip("На какой дистанции враг останавливается и начинает бить цель.")]
         [SerializeField] private float attackDistance = 2.5f;
 
+        [Header("Препятствия")]
+        [Tooltip("Ломать ли постройки, стоящие на пути (D41).\n\n" +
+                 "Приоритетов целей намеренно нет: враг идёт к ратуше и бьёт " +
+                 "то, что мешает пройти. Приоритеты означали бы ИИ выбора цели, " +
+                 "который отлаживается неделю.")]
+        [SerializeField] private bool attackBlockingBuildings = true;
+
+        [Tooltip("Радиус проверки препятствия прямо по курсу.")]
+        [SerializeField] private float obstacleCheckRadius = 1.2f;
+
+        [Tooltip("Слой построек. Ограничивает проверку, чтобы не ловить землю и врагов.")]
+        [SerializeField] private LayerMask buildingLayer = ~0;
+
         [Header("Расталкивание")]
         [Tooltip("Радиус личного пространства. Ближе этого враги отталкивают друг друга. " +
                  "Примерно равен ширине модели: слишком мало — слипаются, " +
@@ -49,6 +62,10 @@ namespace HeroDefense.Enemies
         private readonly List<Vector3> _separationOffsets = new();
 
         private SpatialGrid _grid;
+
+        // Общий буфер: аллокация на каждую проверку препятствия
+        // означала бы мусор каждый кадр на каждого идущего врага.
+        private static readonly Collider[] ObstacleBuffer = new Collider[4];
 
         /// <summary>Сколько врагов сейчас живо.</summary>
         public int AliveCount => _alive.Count;
@@ -203,11 +220,21 @@ namespace HeroDefense.Enemies
 
             if (toGoal.sqrMagnitude <= attackDistance * attackDistance)
             {
-                BeginSiege(enemy);
+                BeginSiege(enemy, mainTarget);
                 return;
             }
 
             Vector3 direction = ResolveDirection(toGoal) + separation;
+
+            // Постройка прямо по курсу — ломаем её, а не обходим (D41).
+            // Обход появится вместе с flow field (D85).
+            Health obstacle = FindBlockingBuilding(enemy, direction);
+
+            if (obstacle != null)
+            {
+                BeginSiege(enemy, obstacle);
+                return;
+            }
 
             if (direction.sqrMagnitude > 0.0001f)
                 direction.Normalize();
@@ -232,9 +259,38 @@ namespace HeroDefense.Enemies
             t.rotation = Quaternion.LookRotation(direction, Vector3.up);
         }
 
-        private void BeginSiege(Enemy enemy)
+        /// <summary>
+        /// Постройка на пути. Проверяем не всё вокруг, а точку чуть впереди
+        /// врага по направлению движения: иначе он бросался бы на здания,
+        /// стоящие сбоку и никак ему не мешающие.
+        /// </summary>
+        private Health FindBlockingBuilding(Enemy enemy, Vector3 direction)
         {
-            enemy.BeginAttacking(mainTarget);
+            if (!attackBlockingBuildings)
+                return null;
+
+            Vector3 probe = enemy.transform.position + direction.normalized * obstacleCheckRadius;
+
+            int count = Physics.OverlapSphereNonAlloc(
+                probe, obstacleCheckRadius, ObstacleBuffer, buildingLayer);
+
+            for (int i = 0; i < count; i++)
+            {
+                if (ObstacleBuffer[i] == null)
+                    continue;
+
+                var health = ObstacleBuffer[i].GetComponentInParent<Health>();
+
+                if (health != null && health.IsAlive)
+                    return health;
+            }
+
+            return null;
+        }
+
+        private void BeginSiege(Enemy enemy, Health target)
+        {
+            enemy.BeginAttacking(target);
             StartedSiege?.Invoke(enemy);
         }
 

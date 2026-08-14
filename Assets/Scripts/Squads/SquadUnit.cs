@@ -46,6 +46,11 @@ namespace HeroDefense.Squads
 
         [SerializeField] private float separationStrength = 0.8f;
 
+        [Tooltip("Слой бойцов. Без маски OverlapSphere ловит вообще всё — " +
+                 "землю, врагов, постройки, коллайдер короля — и отсеивает " +
+                 "их дорогим GetComponentInParent каждый кадр на каждом бойце.")]
+        [SerializeField] private LayerMask unitLayer = ~0;
+
         private static readonly Collider[] NeighbourBuffer = new Collider[8];
 
         private Health _health;
@@ -216,7 +221,7 @@ namespace HeroDefense.Squads
                 return Vector3.zero;
 
             int count = Physics.OverlapSphereNonAlloc(
-                transform.position, separationRadius, NeighbourBuffer);
+                transform.position, separationRadius, NeighbourBuffer, unitLayer);
 
             Vector3 push = Vector3.zero;
 

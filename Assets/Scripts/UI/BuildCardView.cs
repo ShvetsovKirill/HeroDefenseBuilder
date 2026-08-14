@@ -22,6 +22,10 @@ namespace HeroDefense.Building.UI
         [SerializeField] private TMP_Text costText;
         [SerializeField] private CanvasGroup canvasGroup;
 
+        [Tooltip("Счётчик «построено / лимит» (D86). Необязательно: " +
+                 "без него карточка просто тускнеет при исчерпании.")]
+        [SerializeField] private TMP_Text limitText;
+
         [Header("Вид")]
         [SerializeField] private float unavailableAlpha = 0.45f;
 
@@ -77,6 +81,7 @@ namespace HeroDefense.Building.UI
                 canvasGroup.alpha = available ? 1f : unavailableAlpha;
 
             UpdateCostColor();
+            UpdateLimitText();
         }
 
         /// <summary>
@@ -92,6 +97,30 @@ namespace HeroDefense.Building.UI
             bool canAfford = _controller.CanAfford(_definition);
 
             costText.color = canAfford ? _defaultCostColor : unaffordableCostColor;
+        }
+
+        /// <summary>
+        /// Счётчик построенного. Показываем всегда, а не только при исчерпании:
+        /// игрок должен планировать билд заранее, а не упираться в предел
+        /// в момент, когда уже потратил золото на другое.
+        /// </summary>
+        private void UpdateLimitText()
+        {
+            if (limitText == null || _controller == null || _definition == null)
+                return;
+
+            int limit = _controller.GetLimit(_definition);
+
+            if (limit <= 0)
+            {
+                limitText.gameObject.SetActive(false);
+                return;
+            }
+
+            int built = limit - _controller.GetRemaining(_definition);
+
+            limitText.gameObject.SetActive(true);
+            limitText.text = $"{built}/{limit}";
         }
 
         private void OnClicked()

@@ -13,5 +13,10 @@ MonoBehaviour:
   m_Name: TowerBasic
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.BuildingDefinition
   displayName: "\u0411\u0430\u0448\u043D\u044F"
-  cost: 50
+  description: "\u0411\u0430\u0448\u043D\u044F"
+  icon: {fileID: 0}
+  cost: 120
   prefab: {fileID: 7384272259453288396, guid: d48844921d5417245a27627638d5e34e, type: 3}
+  category: 0
+  maxCount: 5
+  allowBlueprints: 1

@@ -53,6 +53,10 @@ namespace HeroDefense.Squads
         {
             _health = GetComponent<Health>();
             CreateSquad();
+
+            // Порядок регистрации задаёт номер клавиши флага (D51):
+            // первая построенная казарма — всегда «1».
+            SquadRegistry.Register(this);
         }
 
         private void OnEnable()
@@ -67,11 +71,16 @@ namespace HeroDefense.Squads
 
         private void OnDestroy()
         {
+            SquadRegistry.Unregister(this);
+
             // Отряд создан кодом и живёт как дочерний объект —
             // при уничтожении постройки он умрёт вместе с ней,
             // но подписки надо снять явно.
             if (_squad != null)
+            {
                 _squad.Wiped -= OnSquadWiped;
+                _squad.UnitLost -= OnUnitLost;
+            }
         }
 
         private void CreateSquad()
@@ -81,11 +90,18 @@ namespace HeroDefense.Squads
 
             _squad = squadObject.AddComponent<Squad>();
             _squad.Wiped += OnSquadWiped;
+            _squad.UnitLost += OnUnitLost;
 
             if (definition != null)
                 _squad.SetMaxUnits(definition.squadSize);
 
             _squad.ClearFlag(RallyPosition);
+        }
+
+        private void OnUnitLost(Squad squad)
+        {
+            // HUD пересчитает армию по событию, а не сканированием сцены.
+            SquadRegistry.NotifyChanged();
         }
 
         private void OnSquadWiped(Squad squad)
@@ -202,7 +218,17 @@ namespace HeroDefense.Squads
         {
             enabled = false;
             ResetProgress();
+
+            IsProducing = false;
+
+            Debug.Log($"[Barracks] {name} разрушена. Отряд больше не пополняется.");
         }
+
+        /// <summary>
+        /// Может ли постройка ещё производить бойцов.
+        /// Ложь после разрушения — отряд становится смертным (D46).
+        /// </summary>
+        public bool IsProducing { get; private set; } = true;
 
         private Vector3 SpawnPosition => spawnPoint != null ? spawnPoint.position : transform.position;
         private Vector3 RallyPosition => rallyPoint != null ? rallyPoint.position : SpawnPosition;

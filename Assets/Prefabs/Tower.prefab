@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6126977401005649705}
   - component: {fileID: 2917007961757180271}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ShotLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4200907861178038045}
   - component: {fileID: 4982392882510839975}
-  m_Layer: 0
+  - component: {fileID: -7995563400598752376}
+  - component: {fileID: -3563239540227706440}
+  - component: {fileID: 6570214642318737451}
+  - component: {fileID: 1906267812678851185}
+  m_Layer: 8
   m_Name: Tower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,6 +178,7 @@ Transform:
   m_Children:
   - {fileID: 4472170057578180935}
   - {fileID: 6126977401005649705}
+  - {fileID: 8504126387709014498}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4982392882510839975
@@ -188,14 +193,79 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ee1b1038c3a42e4fb608dcfda2f1c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Combat.AutoAttacker
-  damage: 15
-  fireRate: 2
-  range: 12
+  damage: 6
+  fireRate: 1.5
+  range: 8
   retargetInterval: 0.2
   searchOwnTarget: 1
   muzzle: {fileID: 0}
   shotLine: {fileID: 2917007961757180271}
   shotLineDuration: 0.05
+--- !u!114 &-7995563400598752376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384272259453288396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f15a9eb8b45f63e4894a056160eedb4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Core.Health
+  maxHealth: 100
+--- !u!114 &-3563239540227706440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384272259453288396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 675354cd75455d149ad9f9beec5bbda7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.Building
+  ruinsPrefab: {fileID: 0}
+  rebuildCostFraction: 0.5
+--- !u!65 &6570214642318737451
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384272259453288396}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.069602, y: 3.3971891, z: 2.2439067}
+  m_Center: {x: -0.13865212, y: 1.6985946, z: -0.059422612}
+--- !u!114 &1906267812678851185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384272259453288396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c1f29ad2dd70a64b8c554f309d3c2c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.UI.DamageFlash
+  renderers: []
+  health: {fileID: 0}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  duration: 0.08
+  intensity: 0.7
 --- !u!1001 &4150893358797592236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -264,6 +334,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tower
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 24282ff4930ce094e9c142849b2e06e6, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -273,4 +347,70 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 24282ff4930ce094e9c142849b2e06e6, type: 3}
   m_PrefabInstance: {fileID: 4150893358797592236}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7910706958328103701
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4200907861178038045}
+    m_Modifications:
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3424127130768712505, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: heightOffset
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5599641704123235390, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: m_Name
+      value: HealthBar
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+--- !u!4 &8504126387709014498 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2003191388307485431, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+  m_PrefabInstance: {fileID: 7910706958328103701}
   m_PrefabAsset: {fileID: 0}

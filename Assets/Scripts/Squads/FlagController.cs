@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using HeroDefense.Building;
 using HeroDefense.Core;
 
 namespace HeroDefense.Squads
@@ -21,16 +21,12 @@ namespace HeroDefense.Squads
     public sealed class FlagController : MonoBehaviour
     {
         [Header("Ссылки")]
-        [Tooltip("Контроллер строительства: новая казарма должна сразу дать флаг.")]
-        [SerializeField] private BuildController buildController;
-
         [Tooltip("Знамя в руках короля. Включается при выборе флага.")]
         [SerializeField] private Renderer carriedBanner;
 
         [Tooltip("Префаб флага на земле — чистый маркер без коллайдера (D53).")]
         [SerializeField] private GameObject flagMarkerPrefab;
 
-        private readonly List<Barracks> _barracks = new();
         private readonly Dictionary<Barracks, GameObject> _markers = new();
 
         private int _selectedIndex = -1;
@@ -42,7 +38,7 @@ namespace HeroDefense.Squads
         /// <summary>Какой флаг сейчас в руках. -1 — ничего не выбрано.</summary>
         public int SelectedIndex => _selectedIndex;
 
-        public int BarracksCount => _barracks.Count;
+        public int BarracksCount => SquadRegistry.Count;
 
         private static Transform King => SceneContext.Current?.King;
 
@@ -54,34 +50,27 @@ namespace HeroDefense.Squads
 
         private void OnEnable()
         {
-            if (buildController != null)
-                buildController.BuildingPlaced += OnBuildingPlaced;
+            // Реестр сам скажет, когда казарм стало больше или меньше —
+            // подписка на постройку зданий больше не нужна.
+            SquadRegistry.Changed += RefreshBarracksList;
         }
 
         private void OnDisable()
         {
-            if (buildController != null)
-                buildController.BuildingPlaced -= OnBuildingPlaced;
-        }
-
-        private void OnBuildingPlaced(GameObject placed)
-        {
-            if (placed != null && placed.GetComponentInChildren<Barracks>() != null)
-                RefreshBarracksList();
+            SquadRegistry.Changed -= RefreshBarracksList;
         }
 
         /// <summary>
-        /// Пересобрать список построек. Порядок определяет, какая цифра
-        /// какому отряду соответствует.
+        /// Порядок казарм берётся из реестра, а не из поиска по сцене:
+        /// FindObjectsByType возвращает объекты в неопределённом порядке,
+        /// и после перестройки казармы клавиши 1–4 могли поменяться местами.
+        /// Игрок нажимал «2» и переставлял не тот флаг.
         /// </summary>
         public void RefreshBarracksList()
         {
-            _barracks.Clear();
-            _barracks.AddRange(FindObjectsByType<Barracks>(FindObjectsSortMode.None));
-
             CleanupOrphanMarkers();
 
-            if (_selectedIndex >= _barracks.Count)
+            if (_selectedIndex >= SquadRegistry.Count)
                 Deselect();
         }
 
@@ -95,7 +84,7 @@ namespace HeroDefense.Squads
 
             foreach (KeyValuePair<Barracks, GameObject> pair in _markers)
             {
-                if (pair.Key == null || !_barracks.Contains(pair.Key))
+                if (pair.Key == null || !SquadRegistry.All.Contains(pair.Key))
                     orphans.Add(pair.Key);
             }
 
@@ -138,7 +127,7 @@ namespace HeroDefense.Squads
         /// <summary>Повторное нажатие на ту же цифру убирает флаг обратно.</summary>
         private void ToggleSelection(int index)
         {
-            if (index >= _barracks.Count)
+            if (index >= SquadRegistry.Count)
                 return;
 
             _selectedIndex = _selectedIndex == index ? -1 : index;
@@ -159,7 +148,7 @@ namespace HeroDefense.Squads
             if (!keyboard.fKey.wasPressedThisFrame || _selectedIndex < 0)
                 return;
 
-            PlaceFlag(_barracks[_selectedIndex]);
+            PlaceFlag(SquadRegistry.GetAt(_selectedIndex));
         }
 
         private void PlaceFlag(Barracks barracks)
@@ -201,12 +190,12 @@ namespace HeroDefense.Squads
             if (carriedBanner == null)
                 return;
 
-            bool hasSelection = _selectedIndex >= 0 && _selectedIndex < _barracks.Count;
+            bool hasSelection = _selectedIndex >= 0 && _selectedIndex < SquadRegistry.Count;
 
             carriedBanner.gameObject.SetActive(hasSelection);
 
             if (hasSelection)
-                ApplyColor(carriedBanner, FlagColorOf(_barracks[_selectedIndex]));
+                ApplyColor(carriedBanner, FlagColorOf(SquadRegistry.GetAt(_selectedIndex)));
         }
 
         private void ApplyColor(Renderer target, Color color)

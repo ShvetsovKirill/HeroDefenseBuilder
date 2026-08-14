@@ -49,11 +49,33 @@ namespace HeroDefense.Building
         private static Wallet Purse => SceneContext.Current?.Wallet;
         private static EnemyManager Enemies => SceneContext.Current?.EnemyManager;
 
+        private static BuildRegistry Registry => BuildRegistry.Current;
+
         private void Awake()
         {
             // Слоты ищем один раз: они статичны в пределах карты
             // и создаются вместе с ней.
             _slots = FindObjectsByType<BuildSlot>(FindObjectsSortMode.None);
+        }
+
+        private void Start()
+        {
+            // Предупреждаем о настройке, при которой лимиты не работают:
+            // если разрешено построить больше, чем есть слотов,
+            // выбор между типами исчезает (D86).
+            Registry?.ValidateAgainstSlots(catalog, _slots.Length);
+        }
+
+        /// <summary>Сколько ещё таких построек можно поставить. Для карточки.</summary>
+        public int GetRemaining(BuildingDefinition definition)
+        {
+            return Registry != null ? Registry.GetRemaining(definition) : int.MaxValue;
+        }
+
+        /// <summary>Действующий лимит с учётом чертежей. Для карточки.</summary>
+        public int GetLimit(BuildingDefinition definition)
+        {
+            return Registry != null ? Registry.GetLimit(definition) : 0;
         }
 
         private void Update()
@@ -170,6 +192,12 @@ namespace HeroDefense.Building
                 return false;
             }
 
+            if (Registry != null && !Registry.CanBuildMore(definition))
+            {
+                reason = "Достигнут предел";
+                return false;
+            }
+
             return true;
         }
 
@@ -185,7 +213,10 @@ namespace HeroDefense.Building
             GameObject placed = _focusedSlot.Place(definition);
 
             if (placed != null)
+            {
+                Registry?.RegisterBuilt(definition);
                 BuildingPlaced?.Invoke(placed);
+            }
 
             // Слот занят — фокус снимается, панель закроется.
             _focusedSlot = null;

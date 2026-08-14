@@ -25,6 +25,7 @@ namespace HeroDefense.Building
         [SerializeField] private float combatCheckRadius = 3f;
 
         private GameObject _placedBuilding;
+        private BuildingDefinition _placedDefinition;
         private MaterialPropertyBlock _propertyBlock;
 
         /// <summary>
@@ -64,8 +65,30 @@ namespace HeroDefense.Building
 
             _placedBuilding = Instantiate(definition.prefab, BuildPosition, transform.rotation, transform);
 
+            // Постройка должна знать, чем она является и где стоит:
+            // без этого при разрушении не освободить лимит и не поставить руины.
+            var building = _placedBuilding.GetComponent<Building>();
+
+            if (building != null)
+                building.Initialize(definition, this);
+
+            _placedDefinition = definition;
+
             return _placedBuilding;
         }
+
+        /// <summary>
+        /// Постройку разрушили враги. Слот освобождается —
+        /// на нём можно строить заново.
+        /// </summary>
+        public void OnBuildingDestroyed()
+        {
+            _placedBuilding = null;
+            _placedDefinition = null;
+        }
+
+        /// <summary>Что здесь стоит. Нужно контроллеру для сноса (D43).</summary>
+        public BuildingDefinition PlacedDefinition => _placedDefinition;
 
         /// <summary>Снести постройку — для продажи и замены (D43).</summary>
         public void Clear()
@@ -74,6 +97,7 @@ namespace HeroDefense.Building
                 Destroy(_placedBuilding);
 
             _placedBuilding = null;
+            _placedDefinition = null;
         }
 
         public enum HighlightState

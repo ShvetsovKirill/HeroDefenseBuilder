@@ -22,7 +22,7 @@ MonoBehaviour:
   turnSpeedDeg: 540
   attackDamage: 10
   fireRate: 3
-  attackRange: 6
+  attackRange: 5.5
   enduranceThreshold: 100
   respawnDelay: 10
   spiritMoveSpeed: 7

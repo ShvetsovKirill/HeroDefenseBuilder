@@ -18,5 +18,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 993f5da0b73c11f42a8a6ddad8405991, type: 2}
   - {fileID: 11400000, guid: b4a3a4ae3bc137349a2326842dbd1c98, type: 2}
   - {fileID: 11400000, guid: 84ebe420782d65a45886399d0ac83691, type: 2}
-  startDelay: 10
-  startingGold: 100
+  - {fileID: 11400000, guid: 11ce5421d8656c1419da0813a0d60613, type: 2}
+  - {fileID: 11400000, guid: e462a072ecb871b409c4f3dc90fa1e3c, type: 2}
+  - {fileID: 11400000, guid: 332fec95a2a6f464d8882efb921154ba, type: 2}
+  - {fileID: 11400000, guid: fb02af1d48d6c304180f01315acac55a, type: 2}
+  startDelay: 12
+  startingGold: 50

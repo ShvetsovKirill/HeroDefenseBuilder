@@ -13,5 +13,10 @@ MonoBehaviour:
   m_Name: Barracks
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.BuildingDefinition
   displayName: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
+  description: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
+  icon: {fileID: 0}
   cost: 120
   prefab: {fileID: 4077878730501716829, guid: d7af0d5fcc30e5e4eb9ea96fb14fd199, type: 3}
+  category: 0
+  maxCount: 4
+  allowBlueprints: 0
