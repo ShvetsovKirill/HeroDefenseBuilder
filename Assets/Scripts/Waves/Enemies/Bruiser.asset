@@ -17,4 +17,4 @@ MonoBehaviour:
   moveSpeed: 1.5
   goldReward: 2
   threatCost: 4
-  prefabOverride: {fileID: 0}
+  prefabOverride: {fileID: 890109183449593501, guid: 47260e9220dff2b459173d0c54a90d6d, type: 3}
