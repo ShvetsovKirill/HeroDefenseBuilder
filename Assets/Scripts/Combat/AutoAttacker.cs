@@ -39,6 +39,19 @@ namespace HeroDefense.Combat
                  "чтобы юнит не бежал к одному врагу, стреляя в другого.")]
         [SerializeField] private bool searchOwnTarget = true;
 
+        [Tooltip("Может ли враг ответить этому стрелку.\n\n" +
+                 "Включено у бойцов отряда: они держат врагов на себе, " +
+                 "и это их роль (затычка). Выключено у башен и короля — " +
+                 "иначе толпа разворачивалась бы к ним через полкарты " +
+                 "и переставала бы осаждать что-либо.")]
+        [SerializeField] private bool provokeRetaliation;
+
+        [Header("Снаряд")]
+        [Tooltip("Префаб снаряда. Пусто — урон мгновенный (хитскан).\n\n" +
+                 "Снаряд нужен там, где важно видеть, кто в кого стреляет: " +
+                 "при десятках юнитов хитскан читается как «все умирают сами».")]
+        [SerializeField] private Projectile projectilePrefab;
+
         [Header("Визуал")]
         [Tooltip("Откуда идёт выстрел. Пусто = центр объекта.")]
         [SerializeField] private Transform muzzle;
@@ -81,8 +94,14 @@ namespace HeroDefense.Combat
             range = Mathf.Max(0f, newRange);
         }
 
+        private Health _ownHealth;
+        private HeroDefense.Visuals.ActorAnimator _animator;
+
         private void Awake()
         {
+            _ownHealth = GetComponentInParent<Health>();
+            _animator = GetComponentInParent<HeroDefense.Visuals.ActorAnimator>();
+
             if (shotLine != null)
                 shotLine.enabled = false;
         }
@@ -97,6 +116,15 @@ namespace HeroDefense.Combat
             searchOwnTarget = false;
             _target = null;
             _targetVersion = 0;
+        }
+
+        /// <summary>
+        /// Должен ли враг отвечать этому стрелку. Включают бойцы отряда,
+        /// башни и король оставляют выключенным.
+        /// </summary>
+        public void SetProvokeRetaliation(bool value)
+        {
+            provokeRetaliation = value;
         }
 
         /// <summary>Назначить цель извне. Работает только после TakeTargetControl.</summary>
@@ -173,8 +201,38 @@ namespace HeroDefense.Combat
 
         private void Fire()
         {
-            _target.TakeDamage(damage);
+            // Анимация дёргается всегда: даже если урон мгновенный,
+            // замах должен быть виден.
+            if (_animator != null)
+                _animator.PlayAttack();
+
+            // Источник передаём, только если этот стрелок должен провоцировать
+            // ответ: башни и король бьют «безнаказанно» осознанно.
+            Health source = provokeRetaliation ? _ownHealth : null;
+
+            if (TryLaunchProjectile(source))
+                return;
+
+            _target.TakeDamage(damage, source);
             ShowShotLine();
+        }
+
+        /// <summary>
+        /// Выпустить снаряд, если он задан и пул существует.
+        ///
+        /// Возвращает false, когда снаряда нет — тогда работает хитскан.
+        /// Так один компонент обслуживает и мечника (мгновенный удар),
+        /// и лучника (летящая стрела), и башню.
+        /// </summary>
+        private bool TryLaunchProjectile(Health source)
+        {
+            if (projectilePrefab == null || ProjectilePool.Current == null)
+                return false;
+
+            ProjectilePool.Current.Launch(
+                projectilePrefab, MuzzlePosition, _target, damage, source);
+
+            return true;
         }
 
         // ---------- Визуал выстрела ----------

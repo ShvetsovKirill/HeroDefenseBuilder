@@ -14,18 +14,18 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_FogMode: 3
+  m_Fog: 1
+  m_FogColor: {r: 0.24313726, g: 0.2901961, b: 0.36078432, a: 1}
+  m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
-  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
-  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_LinearFogStart: 35
+  m_LinearFogEnd: 110
+  m_AmbientSkyColor: {r: 0.3529412, g: 0.43137255, b: 0.52156866, a: 1}
+  m_AmbientEquatorColor: {r: 0.29411766, g: 0.33333334, b: 0.3764706, a: 1}
+  m_AmbientGroundColor: {r: 0.18039216, g: 0.2, b: 0.21960784, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_AmbientMode: 1
+  m_SubtractiveShadowColor: {r: 0.41960785, g: 0.47843137, b: 0.627451, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -1256,61 +1256,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 276482422356441904, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
   m_PrefabInstance: {fileID: 1908736718}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &172438584
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 172438586}
-  - component: {fileID: 172438585}
-  m_Layer: 0
-  m_Name: DebugSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &172438585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 172438584}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70f0c3f315836854c9d340c707854b7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Debugging.DebugEnemySpawner
-  enemyManager: {fileID: 1278628150}
-  spawnPoints:
-  - {fileID: 1668216278}
-  - {fileID: 498053293}
-  - {fileID: 2129775900}
-  spawnSpread: 2
-  enemyHealth: 25
-  enemySpeed: 2.5
-  batchSize: 10
-  autoSpawn: 1
-  autoSpawnInterval: 1.5
---- !u!4 &172438586
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 172438584}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &215716829
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2522,8 +2467,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Color: {r: 1, g: 0.8509804, b: 0.65882355, a: 1}
+  m_Intensity: 1.2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -2532,7 +2477,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0.75
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -2585,13 +2530,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.29045945, y: -0.24684007, z: 0.07782836, w: 0.9212199}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 35, y: -30, z: 0}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3317,6 +3262,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 502035151}
   m_CullTransparentMesh: 1
+--- !u!1 &520569720
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 520569722}
+  - component: {fileID: 520569721}
+  m_Layer: 0
+  m_Name: Projectiles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &520569721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 520569720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66fbbb6d978172a42973e153b30fc16c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Combat.ProjectilePool
+  prewarmPerType: 16
+--- !u!4 &520569722
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 520569720}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &529226497
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5039,6 +5029,7 @@ GameObject:
   - component: {fileID: 834019416}
   - component: {fileID: 834019414}
   - component: {fileID: 834019413}
+  - component: {fileID: 834019419}
   - component: {fileID: 834019412}
   - component: {fileID: 834019417}
   - component: {fileID: 834019418}
@@ -5061,8 +5052,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88b164527bc71284c9434f8b7cfb3b0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Base.TownHall
-  goldPerTick: 8
-  incomeInterval: 30
 --- !u!65 &834019413
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5179,6 +5168,23 @@ MonoBehaviour:
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   duration: 0.08
   intensity: 0.7
+--- !u!114 &834019419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 834019411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d644cb79e3fb1ef459eecaade04cf724, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.GoldIncome
+  goldPerTick: 8
+  interval: 30
+  startupDelay: 0
+  stopWhenDamaged: 0
+  damagedThreshold: 0.35
 --- !u!1001 &841091338
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5759,6 +5765,55 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
+--- !u!1 &888853895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 888853897}
+  - component: {fileID: 888853896}
+  m_Layer: 0
+  m_Name: PostProcessing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &888853896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888853895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 96ce1bcb5328f924eb5ef2ba908f559d, type: 2}
+--- !u!4 &888853897
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888853895}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &896635028
 GameObject:
   m_ObjectHideFlags: 0
@@ -7260,6 +7315,8 @@ MonoBehaviour:
   range: 10
   retargetInterval: 0.2
   searchOwnTarget: 1
+  provokeRetaliation: 0
+  projectilePrefab: {fileID: 1045824427363707743, guid: 42030850533ceb949ac8d710891d3c9e, type: 3}
   muzzle: {fileID: 0}
   shotLine: {fileID: 1839816481}
   shotLineDuration: 0.05
@@ -8636,6 +8693,10 @@ PrefabInstance:
       propertyPath: heightOffset
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 3424127130768712505, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
+      propertyPath: hideWhenFull
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5599641704123235390, guid: 10c7c3061a6be2b489274f84467162ee, type: 3}
       propertyPath: m_Name
       value: HealthBar
@@ -8929,10 +8990,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff18682645b123448b170ea938e5b7a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Economy.Wallet
-  startingGold: 120
-  goldPerKill: 2
+  startingGold: 400
+  fallbackGoldPerKill: 1
   enemyManager: {fileID: 1278628150}
-  townHall: {fileID: 834019412}
 --- !u!114 &1443675333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8948,6 +9008,7 @@ MonoBehaviour:
   catalog:
   - {fileID: 11400000, guid: 55e327609f7be1f44a4f430dc866dbdf, type: 2}
   - {fileID: 11400000, guid: f202387dda9e0be49b1b70dc605d7f1b, type: 2}
+  - {fileID: 11400000, guid: 3d7ade81f8827cc49b2b86e8900f8d3e, type: 2}
   interactionRadius: 3
 --- !u!114 &1443675334
 MonoBehaviour:
@@ -13725,7 +13786,6 @@ SceneRoots:
   - {fileID: 1668216278}
   - {fileID: 498053293}
   - {fileID: 2129775900}
-  - {fileID: 172438586}
   - {fileID: 1278628152}
   - {fileID: 834019416}
   - {fileID: 1828123454}
@@ -13739,3 +13799,5 @@ SceneRoots:
   - {fileID: 1756195354}
   - {fileID: 584104850}
   - {fileID: 2113797313}
+  - {fileID: 888853897}
+  - {fileID: 520569722}

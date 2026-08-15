@@ -218,7 +218,7 @@ namespace HeroDefense.Waves
             EnemyDefinition definition = group.enemy;
             Vector3 position = ResolveSpawnPosition(group.spawnPointIndex);
 
-            enemyManager.Spawn(definition.maxHealth, definition.moveSpeed, position);
+            enemyManager.Spawn(definition, position);
         }
 
         private Vector3 ResolveSpawnPosition(int index)

@@ -26,6 +26,9 @@ namespace HeroDefense.Building.UI
                  "без него карточка просто тускнеет при исчерпании.")]
         [SerializeField] private TMP_Text limitText;
 
+        [Tooltip("Строка с эффектом постройки: доход или урон. Необязательно.")]
+        [SerializeField] private TMP_Text statText;
+
         [Header("Вид")]
         [SerializeField] private float unavailableAlpha = 0.45f;
 
@@ -58,6 +61,12 @@ namespace HeroDefense.Building.UI
 
             if (costText != null)
                 costText.text = definition.cost.ToString();
+
+            if (statText != null)
+            {
+                statText.text = definition.statLine;
+                statText.gameObject.SetActive(!string.IsNullOrEmpty(definition.statLine));
+            }
 
             if (button != null)
             {

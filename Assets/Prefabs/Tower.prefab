@@ -198,6 +198,8 @@ MonoBehaviour:
   range: 8
   retargetInterval: 0.2
   searchOwnTarget: 1
+  provokeRetaliation: 0
+  projectilePrefab: {fileID: 1045824427363707743, guid: 42030850533ceb949ac8d710891d3c9e, type: 3}
   muzzle: {fileID: 0}
   shotLine: {fileID: 2917007961757180271}
   shotLineDuration: 0.05

@@ -17,14 +17,26 @@ namespace HeroDefense.Squads
     /// Мечник и лучник отличаются только числами engageRadius и attackRange (D13).
     /// </summary>
     [RequireComponent(typeof(Health))]
-    public sealed class SquadUnit : MonoBehaviour
+    public sealed class SquadUnit : MonoBehaviour, HeroDefense.Visuals.IAnimatedActor
     {
         [Header("Движение")]
         [SerializeField] private float moveSpeed = 3.5f;
 
-        [Tooltip("Радиус, в котором боец покидает свою точку ради врага. " +
-                 "Маленький у всех типов: это якорь, а не зона патрулирования.")]
+        [Tooltip("Поводок: насколько далеко боец может уйти от якоря. " +
+                 "Это не радиус зрения — врагов он замечает вокруг СЕБЯ, " +
+                 "а поводок только не даёт утянуться через всю карту.")]
         [SerializeField] private float engageRadius = 4f;
+
+        [Tooltip("Радиус, в котором боец замечает врага. Считается от него " +
+                 "самого, а не от якоря.\n\n" +
+                 "Раньше поиск шёл от якоря, и боец у казармы не реагировал " +
+                 "на врага, который ломал постройку в двух метрах — тот " +
+                 "оказывался вне радиуса от точки сбора.")]
+        [SerializeField] private float sightRadius = 5f;
+
+        [Tooltip("Дистанция, на которой боец отвечает ДАЖЕ БЕЗ тревоги отряда. " +
+                 "Это самозащита: враг вплотную, стоять столбом глупо.")]
+        [SerializeField] private float selfDefenceRadius = 2f;
 
         [Tooltip("Насколько близко подходить к врагу. Для мечника — вплотную.")]
         [SerializeField] private float meleeDistance = 1.2f;
@@ -46,17 +58,14 @@ namespace HeroDefense.Squads
 
         [SerializeField] private float separationStrength = 0.8f;
 
-        [Tooltip("Слой бойцов. Без маски OverlapSphere ловит вообще всё — " +
-                 "землю, врагов, постройки, коллайдер короля — и отсеивает " +
-                 "их дорогим GetComponentInParent каждый кадр на каждом бойце.")]
-        [SerializeField] private LayerMask unitLayer = ~0;
-
         private static readonly Collider[] NeighbourBuffer = new Collider[8];
 
         private Health _health;
         private AutoAttacker _attacker;
+        private Squad _squad;
 
         private Vector3 _anchor;
+        private bool _isAttacking;
         private Enemy _currentTarget;
         private int _targetVersion;
         private float _retargetTimer;
@@ -66,6 +75,13 @@ namespace HeroDefense.Squads
 
         public Health Health => _health;
         public bool IsAlive => _health != null && _health.IsAlive;
+
+        /// <summary>
+        /// Насколько быстро боец сейчас движется, 0..1. Читает ActorAnimator.
+        /// Считается по факту перемещения, а не по намерению: если боец
+        /// упёрся в поводок, ноги не должны продолжать бежать.
+        /// </summary>
+        public float NormalizedSpeed { get; private set; }
 
         private void Awake()
         {
@@ -77,22 +93,50 @@ namespace HeroDefense.Squads
             // Стрельбой управляет боец: иначе AutoAttacker искал бы цель
             // сам, и юнит бежал бы к одному врагу, а стрелял в другого.
             if (_attacker != null)
+            {
                 _attacker.TakeTargetControl();
+
+                // Бойцы держат врагов на себе — это их роль (затычка).
+                // Ставим здесь, а не галочкой на префабе: забытая галочка
+                // сломала бы поведение молча.
+                _attacker.SetProvokeRetaliation(true);
+            }
         }
 
         private void OnEnable()
         {
             _health.Died += OnDied;
+            _health.Damaged += OnDamaged;
         }
 
         private void OnDisable()
         {
             _health.Died -= OnDied;
+            _health.Damaged -= OnDamaged;
+        }
+
+        /// <summary>
+        /// По нам бьют — поднимаем тревогу всему отряду немедленно.
+        ///
+        /// Без этого боец, которого атакуют вне радиуса самозащиты, стоял бы
+        /// и умирал, пока рядом не наберётся достаточно врагов для порога.
+        /// А атакующий враг — это уже достаточное основание.
+        /// </summary>
+        private void OnDamaged(float amount)
+        {
+            if (_squad != null)
+                _squad.RaiseAlert();
         }
 
         private void OnDied()
         {
             Died?.Invoke(this);
+        }
+
+        /// <summary>Кто им командует. Задаётся отрядом при зачислении.</summary>
+        public void SetSquad(Squad squad)
+        {
+            _squad = squad;
         }
 
         /// <summary>
@@ -119,9 +163,14 @@ namespace HeroDefense.Squads
         // ---------- Выбор цели ----------
 
         /// <summary>
-        /// Ищем врагов вокруг ЯКОРЯ, а не вокруг себя.
-        /// Иначе боец, погнавшись за одним, увидел бы следующего уже
-        /// с новой позиции и утянулся бы через всю карту.
+        /// Врагов ищем вокруг СЕБЯ, а удаление от якоря ограничиваем отдельно.
+        ///
+        /// Раньше поиск шёл от якоря — и боец, стоящий у казармы, не видел
+        /// врага, который ломал её в двух метрах: тот был вне радиуса
+        /// от точки сбора, хотя вплотную к самому бойцу.
+        ///
+        /// Теперь engageRadius работает как поводок: боец замечает всё вокруг,
+        /// но не уходит за пределы привязки к флагу.
         /// </summary>
         private void UpdateTarget(float deltaTime)
         {
@@ -131,21 +180,66 @@ namespace HeroDefense.Squads
                 return;
 
             _retargetTimer = retargetInterval;
-
-            EnemyManager manager = SceneContext.Current != null
-                ? SceneContext.Current.EnemyManager
-                : null;
-
-            _currentTarget = manager != null
-                ? manager.FindNearest(_anchor, engageRadius)
-                : null;
-
+            _currentTarget = FindReachableEnemy();
             _targetVersion = _currentTarget != null ? _currentTarget.Version : 0;
 
             // Отдаём цель стрелку — он больше не ищет её сам.
             if (_attacker != null)
                 _attacker.SetTarget(_currentTarget);
         }
+
+        /// <summary>
+        /// Ближайший враг, до которого можно дойти, не порвав поводок.
+        ///
+        /// Проверяем не только «вижу ли», но и «дотянусь ли»: иначе боец
+        /// побежал бы к врагу, упёрся в границу поводка и застрял бы
+        /// на полпути, не стреляя и не возвращаясь.
+        /// </summary>
+        private Enemy FindReachableEnemy()
+        {
+            EnemyManager manager = SceneContext.Current != null
+                ? SceneContext.Current.EnemyManager
+                : null;
+
+            if (manager == null)
+                return null;
+
+            // Без тревоги отряда боец реагирует только на то, что вплотную:
+            // так отряд входит в бой группой, а не растаскивается по одному
+            // на каждого пробегающего мимо врага.
+            float radius = IsSquadAlerted ? sightRadius : selfDefenceRadius;
+
+            Enemy candidate = manager.FindNearest(transform.position, radius);
+
+            return IsWithinLeash(candidate) ? candidate : null;
+        }
+
+        /// <summary>
+        /// Влезает ли враг в поводок. Дальность оружия учитывается:
+        /// лучнику не нужно подходить вплотную, поэтому он достаёт дальше,
+        /// не сходя с места (D13).
+        /// </summary>
+        private bool IsWithinLeash(Enemy enemy)
+        {
+            if (enemy == null)
+                return false;
+
+            Vector3 delta = enemy.transform.position - _anchor;
+            delta.y = 0f;
+
+            float reach = engageRadius + AttackReach;
+
+            return delta.sqrMagnitude <= reach * reach;
+        }
+
+        /// <summary>
+        /// Поднят ли отряд по тревоге. Если отряда нет (боец сам по себе) —
+        /// считаем, что разрешено всё: незачем делать одиночку беспомощным.
+        /// </summary>
+        private bool IsSquadAlerted => _squad == null || _squad.IsAlerted;
+
+        /// <summary>Дальность оружия — сколько боец достаёт, стоя на месте.</summary>
+        private float AttackReach => _attacker != null ? _attacker.Range : meleeDistance;
 
         private bool IsTargetStillValid()
         {
@@ -156,10 +250,7 @@ namespace HeroDefense.Squads
             if (_currentTarget.Version != _targetVersion)
                 return false;
 
-            Vector3 delta = _currentTarget.transform.position - _anchor;
-            delta.y = 0f;
-
-            return delta.sqrMagnitude <= engageRadius * engageRadius;
+            return IsWithinLeash(_currentTarget);
         }
 
         // ---------- Перемещение ----------
@@ -174,12 +265,66 @@ namespace HeroDefense.Squads
             Vector3 total = desired + separation;
 
             if (total.sqrMagnitude < 0.0001f)
+            {
+                NormalizedSpeed = 0f;
                 return;
+            }
 
             total.Normalize();
 
             FaceDirection(desired.sqrMagnitude > 0.0001f ? desired : total);
+
+            Vector3 before = transform.position;
+
             transform.position += total * (moveSpeed * deltaTime);
+
+            ClampToLeash();
+
+            UpdateNormalizedSpeed(before, deltaTime);
+        }
+
+        /// <summary>
+        /// Не даём уйти за поводок физически.
+        ///
+        /// Проверки при выборе цели недостаточно: враг может отойти уже
+        /// после того, как боец побежал. Без ограничения отряд растянулся бы
+        /// за отступающими врагами и оголил направление — а он якорь,
+        /// а не преследователь.
+        /// </summary>
+        private void ClampToLeash()
+        {
+            Vector3 fromAnchor = transform.position - _anchor;
+            fromAnchor.y = 0f;
+
+            float maxDistance = engageRadius;
+
+            if (fromAnchor.sqrMagnitude <= maxDistance * maxDistance)
+                return;
+
+            Vector3 clamped = _anchor + fromAnchor.normalized * maxDistance;
+
+            clamped.y = transform.position.y;
+            transform.position = clamped;
+        }
+
+        /// <summary>
+        /// Скорость по факту смещения: боец, упёршийся в поводок,
+        /// должен стоять, а не перебирать ногами на месте.
+        /// </summary>
+        private void UpdateNormalizedSpeed(Vector3 previousPosition, float deltaTime)
+        {
+            // Во время удара боец считается стоящим, даже если его толкают
+            // соседи: иначе анимация мерцает между idle и walk, потому что
+            // расталкивание даёт микросмещения каждый кадр.
+            if (_isAttacking || deltaTime <= 0f || moveSpeed <= 0f)
+            {
+                NormalizedSpeed = 0f;
+                return;
+            }
+
+            float travelled = (transform.position - previousPosition).magnitude;
+
+            NormalizedSpeed = Mathf.Clamp01(travelled / (moveSpeed * deltaTime));
         }
 
         private Vector3 ResolveChaseDirection()
@@ -191,14 +336,20 @@ namespace HeroDefense.Squads
             if (toTarget.sqrMagnitude <= meleeDistance * meleeDistance)
             {
                 FaceDirection(toTarget);
+                _isAttacking = true;
+
                 return Vector3.zero;
             }
+
+            _isAttacking = false;
 
             return toTarget.normalized;
         }
 
         private Vector3 ResolveReturnDirection()
         {
+            _isAttacking = false;
+
             Vector3 toAnchor = _anchor - transform.position;
             toAnchor.y = 0f;
 
@@ -221,7 +372,7 @@ namespace HeroDefense.Squads
                 return Vector3.zero;
 
             int count = Physics.OverlapSphereNonAlloc(
-                transform.position, separationRadius, NeighbourBuffer, unitLayer);
+                transform.position, separationRadius, NeighbourBuffer);
 
             Vector3 push = Vector3.zero;
 

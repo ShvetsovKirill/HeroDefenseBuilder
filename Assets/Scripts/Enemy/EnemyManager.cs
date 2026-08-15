@@ -23,7 +23,8 @@ namespace HeroDefense.Enemies
         [SerializeField] private Health mainTarget;
 
         [Header("Поведение")]
-        [Tooltip("На какой дистанции враг останавливается и начинает бить цель.")]
+        [Tooltip("Запасная дистанция атаки — используется, если у типа врага " +
+                 "она не задана. Обычно берётся из EnemyDefinition.")]
         [SerializeField] private float attackDistance = 2.5f;
 
         [Header("Препятствия")]
@@ -218,7 +219,11 @@ namespace HeroDefense.Enemies
             Vector3 toGoal = mainTarget.transform.position - enemy.transform.position;
             toGoal.y = 0f;
 
-            if (toGoal.sqrMagnitude <= attackDistance * attackDistance)
+            // Дистанция у каждого своя: лучник останавливается далеко
+            // и стреляет, мечник подходит вплотную.
+            float reach = ResolveAttackDistance(enemy);
+
+            if (toGoal.sqrMagnitude <= reach * reach)
             {
                 BeginSiege(enemy, mainTarget);
                 return;
@@ -288,6 +293,13 @@ namespace HeroDefense.Enemies
             return null;
         }
 
+        private float ResolveAttackDistance(Enemy enemy)
+        {
+            float fromDefinition = enemy.AttackRange;
+
+            return fromDefinition > 0f ? fromDefinition : attackDistance;
+        }
+
         private void BeginSiege(Enemy enemy, Health target)
         {
             enemy.BeginAttacking(target);
@@ -296,11 +308,22 @@ namespace HeroDefense.Enemies
 
         // ---------- Спавн и смерть ----------
 
-        public Enemy Spawn(float maxHealth, float moveSpeed, Vector3 position)
+        /// <summary>
+        /// Создать врага из ассета. Данные передаются целиком, а не по частям:
+        /// раньше сюда шли только HP и скорость, поэтому награда и вес угрозы
+        /// терялись, и золото за всех врагов было одинаковым.
+        /// </summary>
+        public Enemy Spawn(HeroDefense.Waves.EnemyDefinition definition, Vector3 position)
         {
+            if (definition == null)
+            {
+                Debug.LogError("[EnemyManager] Spawn без EnemyDefinition.", this);
+                return null;
+            }
+
             Enemy enemy = pool.Rent();
 
-            enemy.Initialize(maxHealth, moveSpeed, position);
+            enemy.Initialize(definition, definition.maxHealth, definition.moveSpeed, position);
             enemy.Died += OnEnemyDied;
 
             _alive.Add(enemy);
@@ -362,6 +385,41 @@ namespace HeroDefense.Enemies
         /// поэтому сетка здесь пока избыточна. Если станет узким местом —
         /// переиспользуем _grid.
         /// </summary>
+        /// <summary>
+        /// Сколько живых врагов в радиусе. Нужно отряду, чтобы отличить
+        /// одиночку от группы: срываться всем составом на каждого
+        /// пробегающего — значит постоянно оголять позицию.
+        ///
+        /// Считаем с ранним выходом: точное число не нужно, важно только
+        /// «больше порога или нет».
+        /// </summary>
+        public int CountNearby(Vector3 from, float radius, int stopAt)
+        {
+            float radiusSqr = radius * radius;
+            int count = 0;
+
+            for (int i = 0; i < _alive.Count; i++)
+            {
+                Enemy candidate = _alive[i];
+
+                if (!candidate.IsAlive)
+                    continue;
+
+                Vector3 delta = candidate.transform.position - from;
+                delta.y = 0f;
+
+                if (delta.sqrMagnitude > radiusSqr)
+                    continue;
+
+                count++;
+
+                if (count >= stopAt)
+                    return count;
+            }
+
+            return count;
+        }
+
         public Enemy FindNearest(Vector3 from, float maxRange)
         {
             float bestSqr = maxRange * maxRange;

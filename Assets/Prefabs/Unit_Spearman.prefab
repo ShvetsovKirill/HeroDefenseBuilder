@@ -26,12 +26,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1967943656250619343}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.6, z: 0}
   m_LocalScale: {x: 0.4, y: 0.7, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8703683714478582399}
+  m_Father: {fileID: 8089647443084084718}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3095934399394663474
 MeshFilter:
@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 5121423348594837969}
   - component: {fileID: 7711097224426492057}
   - component: {fileID: 8296873622397207292}
+  - component: {fileID: -3752390198444652347}
   m_Layer: 9
   m_Name: Unit_Spearman
   m_TagString: Untagged
@@ -124,7 +125,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 936285458114056562}
-  - {fileID: 8688704216737040689}
+  - {fileID: 8089647443084084718}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1470119319878928700
@@ -139,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f15a9eb8b45f63e4894a056160eedb4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Core.Health
-  maxHealth: 35
+  maxHealth: 60
 --- !u!114 &5422233506633409903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,14 +155,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Squads.SquadUnit
   moveSpeed: 4
   engageRadius: 4
+  sightRadius: 5
+  selfDefenceRadius: 2
   meleeDistance: 1.2
   arriveTolerance: 0.6
   retargetInterval: 0.25
   separationRadius: 0.7
   separationStrength: 0.8
-  unitLayer:
-    serializedVersion: 2
-    m_Bits: 512
 --- !u!114 &5121423348594837969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,11 +174,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ee1b1038c3a42e4fb608dcfda2f1c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Combat.AutoAttacker
-  damage: 8
+  damage: 6
   fireRate: 1
   range: 1.5
   retargetInterval: 0.2
   searchOwnTarget: 1
+  provokeRetaliation: 0
+  projectilePrefab: {fileID: 1045824427363707743, guid: bb1749c2a03a2004a8b51cec4c53958f, type: 3}
   muzzle: {fileID: 0}
   shotLine: {fileID: 0}
   shotLineDuration: 0.05
@@ -222,6 +224,58 @@ MonoBehaviour:
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   duration: 0.08
   intensity: 0.7
+--- !u!114 &-3752390198444652347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134119211721229495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 394e0e4f3b71c284f966a24a8b4100ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Visuals.ActorAnimator
+  animator: {fileID: 0}
+  speedParameter: Speed
+  attackTrigger: Attack
+  deathTrigger: Die
+  hitTrigger: Hit
+  speedDamping: 0.15
+  playHitReaction: 0
+  health: {fileID: 0}
+--- !u!1 &5220847857531130543
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8089647443084084718}
+  m_Layer: 9
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8089647443084084718
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5220847857531130543}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8688704216737040689}
+  m_Father: {fileID: 8703683714478582399}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1671567038942864261
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using HeroDefense.Base;
 using HeroDefense.Enemies;
 
 namespace HeroDefense.Economy
@@ -8,8 +7,9 @@ namespace HeroDefense.Economy
     /// <summary>
     /// Золото игрока. Единственный ресурс в игре (D31).
     ///
-    /// Два источника: убийства и пассивный доход ратуши.
-    /// Позже добавятся экономические постройки.
+    /// Убийства начисляются по событию, пассивный доход зданий —
+    /// прямым вызовом Add из GoldIncome: подписываться на каждое
+    /// здание с доходом означало бы лишнюю связность.
     ///
     /// Золото начисляется сразу, без физических монеток — по D9 мелочь
     /// от толпы не должна порождать сотни пикапов. Физические монеты
@@ -21,12 +21,14 @@ namespace HeroDefense.Economy
         [SerializeField] private int startingGold = 100;
 
         [Header("Доход")]
-        [Tooltip("Золото за одного убитого врага. Позже возьмётся из данных врага.")]
-        [SerializeField] private int goldPerKill = 2;
+        [Tooltip("Запасное значение: используется, только если у врага " +
+                 "не задан EnemyDefinition. Обычная награда берётся из ассета — " +
+                 "иначе за бугая давали бы столько же, сколько за роевого, " +
+                 "и дилемма «убить самому ради золота» не работала бы.")]
+        [SerializeField] private int fallbackGoldPerKill = 1;
 
         [Header("Ссылки")]
         [SerializeField] private EnemyManager enemyManager;
-        [SerializeField] private TownHall townHall;
 
         private int _gold;
         private bool _initialized;
@@ -68,8 +70,6 @@ namespace HeroDefense.Economy
             if (enemyManager != null)
                 enemyManager.EnemyKilled += OnEnemyKilled;
 
-            if (townHall != null)
-                townHall.IncomeGenerated += Add;
         }
 
         private void OnDisable()
@@ -77,13 +77,15 @@ namespace HeroDefense.Economy
             if (enemyManager != null)
                 enemyManager.EnemyKilled -= OnEnemyKilled;
 
-            if (townHall != null)
-                townHall.IncomeGenerated -= Add;
         }
 
         private void OnEnemyKilled(Enemy enemy)
         {
-            Add(goldPerKill);
+            int reward = enemy != null && enemy.Definition != null
+                ? enemy.Definition.goldReward
+                : fallbackGoldPerKill;
+
+            Add(reward);
         }
 
         public void Add(int amount)

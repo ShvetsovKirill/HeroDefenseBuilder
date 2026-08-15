@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0bd1112950f058d4eb5efb417952382c, type: 3}
-  m_Name: Barracks
+  m_Name: Farm
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.BuildingDefinition
-  displayName: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
-  description: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
+  displayName: "\u0424\u0435\u0440\u043C\u0430"
+  description: "\u0424\u0435\u0440\u043C\u0430"
   icon: {fileID: 0}
   cost: 120
-  prefab: {fileID: 4077878730501716829, guid: d7af0d5fcc30e5e4eb9ea96fb14fd199, type: 3}
+  prefab: {fileID: 4077878730501716829, guid: 5323d04ef5e92ea4dae9128756d543f1, type: 3}
   statLine: 
-  category: 2
+  category: 1
   maxCount: 4
-  allowBlueprints: 0
+  allowBlueprints: 1

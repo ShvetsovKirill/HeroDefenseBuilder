@@ -15,27 +15,20 @@ namespace HeroDefense.Base
     /// Урон наносят сами враги, подойдя вплотную (осада) — ратуша
     /// ничего не знает о том, кто её бьёт.
     /// </summary>
+    /// <remarks>
+    /// Пассивный доход переехал в отдельный компонент GoldIncome:
+    /// он нужен и экономическим зданиям, а копировать логику в каждое —
+    /// значит чинить её потом в двух местах.
+    /// </remarks>
     [RequireComponent(typeof(Health))]
     public sealed class TownHall : MonoBehaviour
     {
-        [Header("Пассивный доход")]
-        [Tooltip("Сколько золота приносит ратуша за один тик (D45). " +
-                 "Это нижний порог дохода, чтобы игрок не застревал в нуле.")]
-        [SerializeField] private int goldPerTick = 2;
-
-        [Tooltip("Интервал между начислениями, секунды.")]
-        [SerializeField] private float incomeInterval = 15f;
-
         private Health _health;
-        private float _incomeTimer;
 
         public Health Health => _health;
 
         /// <summary>Ратуша разрушена — конец игры.</summary>
         public event Action Destroyed;
-
-        /// <summary>Пассивный доход начислен. Аргумент — сумма.</summary>
-        public event Action<int> IncomeGenerated;
 
         private void Awake()
         {
@@ -51,33 +44,6 @@ namespace HeroDefense.Base
         {
             _health.Died -= OnHealthDied;
         }
-
-        private void Update()
-        {
-            TickIncome(Time.deltaTime);
-        }
-
-        /// <summary>
-        /// Пассивный доход идёт, даже когда всё остальное разрушено (D44).
-        /// Это предохранитель от спирали поражения: потерял постройки —
-        /// всё ещё есть на что отстроиться.
-        /// </summary>
-        private void TickIncome(float deltaTime)
-        {
-            if (!_health.IsAlive || !IsGameRunning)
-                return;
-
-            _incomeTimer += deltaTime;
-
-            if (_incomeTimer < incomeInterval)
-                return;
-
-            _incomeTimer = 0f;
-            IncomeGenerated?.Invoke(goldPerTick);
-        }
-
-        private static bool IsGameRunning =>
-            GameState.Current == null || GameState.Current.IsPlaying;
 
         private void OnHealthDied()
         {

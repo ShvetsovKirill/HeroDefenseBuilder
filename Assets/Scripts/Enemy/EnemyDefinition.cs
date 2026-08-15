@@ -18,6 +18,17 @@ namespace HeroDefense.Waves
         public float maxHealth = 40f;
         public float moveSpeed = 2.5f;
 
+        [Header("Атака")]
+        [Tooltip("С какого расстояния враг атакует цель.\n\n" +
+                 "Для ближнего боя ~2.5, для лучника 8–10. Раньше дистанция " +
+                 "была общей для всех в EnemyManager — из-за этого Ranged " +
+                 "механически ничем не отличался от Runner, только числами, " +
+                 "и его роль «ломает безопасную позицию» не работала.")]
+        public float attackRange = 2.5f;
+
+        [Tooltip("Снаряд. Пусто — урон мгновенный (ближний бой).")]
+        public HeroDefense.Combat.Projectile projectilePrefab;
+
         [Header("Награда")]
         [Tooltip("Золото за убийство. Чем опаснее враг, тем больше.")]
         public int goldReward = 2;

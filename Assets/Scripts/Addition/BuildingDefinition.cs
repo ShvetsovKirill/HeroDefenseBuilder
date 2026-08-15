@@ -30,6 +30,12 @@ namespace HeroDefense.Building
         [Header("Что ставится")]
         public GameObject prefab;
 
+        [Header("Подсказка")]
+        [Tooltip("Короткая строка под ценой: «+10 / 20 сек» или «12 урона».\n\n" +
+                 "Заполняется вручную: считать её из префаба означало бы, " +
+                 "что карточка знает про начинку зданий.")]
+        public string statLine;
+
         [Header("Категория")]
         [Tooltip("Для сортировки карточек. Все типы идут в любой слот (D4 — единый пул).")]
         public BuildingCategory category = BuildingCategory.Tower;

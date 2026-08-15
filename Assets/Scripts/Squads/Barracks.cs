@@ -62,11 +62,24 @@ namespace HeroDefense.Squads
         private void OnEnable()
         {
             _health.Died += OnBuildingDestroyed;
+            _health.Damaged += OnBuildingDamaged;
         }
 
         private void OnDisable()
         {
             _health.Died -= OnBuildingDestroyed;
+            _health.Damaged -= OnBuildingDamaged;
+        }
+
+        /// <summary>
+        /// Казарму бьют — поднимаем тревогу своему отряду.
+        /// Иначе бойцы стоят рядом и смотрят, как ломают их дом:
+        /// враг может бить постройку, оставаясь вне радиуса самозащиты бойца.
+        /// </summary>
+        private void OnBuildingDamaged(float amount)
+        {
+            if (_squad != null)
+                _squad.RaiseAlert();
         }
 
         private void OnDestroy()
