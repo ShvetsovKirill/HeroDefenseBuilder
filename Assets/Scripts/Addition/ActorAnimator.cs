@@ -18,6 +18,20 @@ namespace HeroDefense.Visuals
     }
 
     /// <summary>
+    /// Боевая стойка. Отдельный интерфейс, а не поле в IAnimatedActor:
+    /// его реализуют не все — врагу боевой idle не нужен, он и так
+    /// всегда идёт в атаку.
+    /// </summary>
+    public interface ICombatStance
+    {
+        /// <summary>
+        /// Готов к бою: враг рядом, но схватка ещё не началась.
+        /// Бойцы опускают копья и поднимают щиты.
+        /// </summary>
+        bool IsCombatReady { get; }
+    }
+
+    /// <summary>
     /// Переводит состояние юнита в параметры Animator.
     ///
     /// Ставится на КОРЕНЬ юнита, ссылается на Animator внутри визуальной части.
@@ -40,6 +54,12 @@ namespace HeroDefense.Visuals
         [SerializeField] private string deathTrigger = "Die";
         [SerializeField] private string hitTrigger = "Hit";
 
+        [Tooltip("Булев параметр боевой стойки. Отряд поднят по тревоге — " +
+                 "бойцы переходят из спокойного idle в боевой: опускают копья, " +
+                 "поднимают щиты. Деталь из Bad North, стоит дёшево, " +
+                 "а напряжение читается сразу.")]
+        [SerializeField] private string combatStanceParameter = "CombatReady";
+
         [Header("Настройка")]
         [Tooltip("Сглаживание скорости: без него переход idle → run дёргается " +
                  "при каждой смене направления.")]
@@ -49,17 +69,15 @@ namespace HeroDefense.Visuals
                  "она перебивает атаку и юнит выглядит парализованным.")]
         [SerializeField] private bool playHitReaction;
 
-        [Header("Ссылки")]
-        [Tooltip("Здоровье для реакции на попадание. Пусто — поищем у родителя.")]
-        [SerializeField] private HeroDefense.Core.Health health;
-
         private IAnimatedActor _actor;
+        private ICombatStance _stance;
         private bool _deathPlayed;
 
         private int _speedId;
         private int _attackId;
         private int _deathId;
         private int _hitId;
+        private int _stanceId;
 
         private void Awake()
         {
@@ -67,36 +85,9 @@ namespace HeroDefense.Visuals
                 animator = GetComponentInChildren<Animator>();
 
             _actor = GetComponent<IAnimatedActor>();
-
-            // Пока модели нет, компонент только тратит вызовы Update
-            // на каждом юните. Выключаемся, а не проверяем внутри.
-            if (animator == null || _actor == null)
-            {
-                enabled = false;
-                return;
-            }
+            _stance = GetComponent<ICombatStance>();
 
             CacheParameterIds();
-
-            if (health == null)
-                health = GetComponentInParent<HeroDefense.Core.Health>();
-        }
-
-        private void OnEnable()
-        {
-            if (health != null)
-                health.Damaged += OnDamaged;
-        }
-
-        private void OnDisable()
-        {
-            if (health != null)
-                health.Damaged -= OnDamaged;
-        }
-
-        private void OnDamaged(float amount)
-        {
-            PlayHit();
         }
 
         /// <summary>
@@ -109,10 +100,14 @@ namespace HeroDefense.Visuals
             _attackId = Animator.StringToHash(attackTrigger);
             _deathId = Animator.StringToHash(deathTrigger);
             _hitId = Animator.StringToHash(hitTrigger);
+            _stanceId = Animator.StringToHash(combatStanceParameter);
         }
 
         private void Update()
         {
+            if (animator == null || _actor == null)
+                return;
+
             if (!_actor.IsAlive)
             {
                 PlayDeathOnce();
@@ -120,6 +115,9 @@ namespace HeroDefense.Visuals
             }
 
             animator.SetFloat(_speedId, _actor.NormalizedSpeed, speedDamping, Time.deltaTime);
+
+            if (_stance != null)
+                animator.SetBool(_stanceId, _stance.IsCombatReady);
         }
 
         /// <summary>Вызывается в момент удара или выстрела.</summary>

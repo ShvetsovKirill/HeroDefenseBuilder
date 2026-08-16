@@ -51,6 +51,13 @@ namespace HeroDefense.Squads
                  "а при трёх отрядах таких переборов было бы 18 за кадр.")]
         [SerializeField] private float retargetInterval = 0.25f;
 
+        [Header("Смерть")]
+        [Tooltip("Через сколько секунд убрать тело.\n\n" +
+                 "Не сразу: должна успеть проиграться анимация смерти. " +
+                 "Но и не навсегда — трупы участвуют в расталкивании " +
+                 "и живые обходят их как препятствия.")]
+        [SerializeField] private float corpseLifetime = 3f;
+
         [Header("Расталкивание")]
         [Tooltip("Личное пространство между бойцами. Без него отряд " +
                  "слипается при движении, даже несмотря на построение кольцом.")]
@@ -65,7 +72,6 @@ namespace HeroDefense.Squads
         private Squad _squad;
 
         private Vector3 _anchor;
-        private bool _isAttacking;
         private Enemy _currentTarget;
         private int _targetVersion;
         private float _retargetTimer;
@@ -122,6 +128,17 @@ namespace HeroDefense.Squads
         /// и умирал, пока рядом не наберётся достаточно врагов для порога.
         /// А атакующий враг — это уже достаточное основание.
         /// </summary>
+        /// <summary>
+        /// По нам бьют — поднимаем тревогу всему отряду немедленно.
+        ///
+        /// Без этого боец, которого атакуют вне радиуса самозащиты, стоял бы
+        /// и умирал, пока рядом не наберётся достаточно врагов для порога.
+        /// А атакующий враг — это уже достаточное основание.
+        ///
+        /// Отдельно важно для стрелков: они бьют издалека, порог по количеству
+        /// у флага может вообще не набраться, и отряд стоял бы под обстрелом
+        /// в полном неведении.
+        /// </summary>
         private void OnDamaged(float amount)
         {
             if (_squad != null)
@@ -131,6 +148,25 @@ namespace HeroDefense.Squads
         private void OnDied()
         {
             Died?.Invoke(this);
+
+            // Отключаем расталкивание и поиск целей сразу, а объект убираем
+            // с задержкой: иначе тело толкало бы живых и мешало строю.
+            enabled = false;
+
+            DisableCollider();
+            Destroy(gameObject, corpseLifetime);
+        }
+
+        /// <summary>
+        /// Коллидер выключаем отдельно: он используется для расталкивания,
+        /// и без этого труп остался бы препятствием на все три секунды.
+        /// </summary>
+        private void DisableCollider()
+        {
+            var ownCollider = GetComponent<Collider>();
+
+            if (ownCollider != null)
+                ownCollider.enabled = false;
         }
 
         /// <summary>Кто им командует. Задаётся отрядом при зачислении.</summary>
@@ -241,6 +277,13 @@ namespace HeroDefense.Squads
         /// <summary>Дальность оружия — сколько боец достаёт, стоя на месте.</summary>
         private float AttackReach => _attacker != null ? _attacker.Range : meleeDistance;
 
+        /// <summary>
+        /// Насколько далеко боец достаёт от якоря: поводок плюс оружие.
+        /// Отряд использует это, чтобы понять, на сколько сдвинуть строй
+        /// к дальнему стрелку.
+        /// </summary>
+        public float TotalReach => engageRadius + AttackReach;
+
         private bool IsTargetStillValid()
         {
             if (_currentTarget == null || !_currentTarget.IsAlive)
@@ -313,10 +356,7 @@ namespace HeroDefense.Squads
         /// </summary>
         private void UpdateNormalizedSpeed(Vector3 previousPosition, float deltaTime)
         {
-            // Во время удара боец считается стоящим, даже если его толкают
-            // соседи: иначе анимация мерцает между idle и walk, потому что
-            // расталкивание даёт микросмещения каждый кадр.
-            if (_isAttacking || deltaTime <= 0f || moveSpeed <= 0f)
+            if (deltaTime <= 0f || moveSpeed <= 0f)
             {
                 NormalizedSpeed = 0f;
                 return;
@@ -336,20 +376,14 @@ namespace HeroDefense.Squads
             if (toTarget.sqrMagnitude <= meleeDistance * meleeDistance)
             {
                 FaceDirection(toTarget);
-                _isAttacking = true;
-
                 return Vector3.zero;
             }
-
-            _isAttacking = false;
 
             return toTarget.normalized;
         }
 
         private Vector3 ResolveReturnDirection()
         {
-            _isAttacking = false;
-
             Vector3 toAnchor = _anchor - transform.position;
             toAnchor.y = 0f;
 

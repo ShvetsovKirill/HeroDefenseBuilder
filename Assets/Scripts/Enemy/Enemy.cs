@@ -62,8 +62,7 @@ namespace HeroDefense.Enemies
 
         /// <summary>
         /// С какого расстояния враг атакует. Свойство типа, а не общая
-        /// настройка менеджера: иначе лучник ничем не отличался бы
-        /// от мечника, кроме цифр.
+        /// настройка: иначе лучник не отличался бы от мечника.
         /// </summary>
         public float AttackRange => Definition != null ? Definition.attackRange : 2.5f;
 
@@ -83,6 +82,7 @@ namespace HeroDefense.Enemies
         private float _currentHealth;
         private float _attackCooldown;
         private HeroDefense.Visuals.ActorAnimator _animator;
+
         private Health _ownHealth;
 
         private void Awake()
@@ -225,10 +225,7 @@ namespace HeroDefense.Enemies
 
         /// <summary>
         /// Снаряд или удар вплотную — зависит от типа врага.
-        ///
-        /// Снаряд летит и может промахнуться по времени, если цель успеет
-        /// умереть. Для ближнего боя это лишняя сущность, поэтому
-        /// у мечников префаб не задан и урон наносится сразу.
+        /// У мечников префаб не задан, и урон наносится сразу.
         /// </summary>
         private void DeliverDamage()
         {

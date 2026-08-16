@@ -22,13 +22,13 @@ MonoBehaviour:
     burstSize: 1
   - enemy: {fileID: 11400000, guid: e6c2a520bae3ee84faf539b61904cd88, type: 2}
     count: 1
-    spawnPointIndex: 1
+    spawnPointIndex: 0
     startDelay: 1
     interval: 1
     burstSize: 1
   - enemy: {fileID: 11400000, guid: 198088aceccc52e43a7f298401bfba39, type: 2}
     count: 1
-    spawnPointIndex: 2
+    spawnPointIndex: 0
     startDelay: 2
     interval: 1
     burstSize: 1

@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: "\u0411\u0430\u043D\u0434\u0438\u0442"
   maxHealth: 18
   moveSpeed: 2.7
-  attackRange: 2.5
+  attackRange: 8
   projectilePrefab: {fileID: 1045824427363707743, guid: 42030850533ceb949ac8d710891d3c9e, type: 3}
   goldReward: 3
   threatCost: 2

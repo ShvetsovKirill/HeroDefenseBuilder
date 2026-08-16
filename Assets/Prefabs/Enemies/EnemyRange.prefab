@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Enemies.Enemy
   attackDamage: 5
   attackRate: 1.2
+  retaliationRadius: 2
 --- !u!1001 &8970184536128802423
 PrefabInstance:
   m_ObjectHideFlags: 0

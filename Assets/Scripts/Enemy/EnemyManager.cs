@@ -27,6 +27,16 @@ namespace HeroDefense.Enemies
                  "она не задана. Обычно берётся из EnemyDefinition.")]
         [SerializeField] private float attackDistance = 2.5f;
 
+        [Header("Цели по пути")]
+        [Tooltip("Атаковать ли то, что рядом: постройки и бойцов отряда (D41).\n\n" +
+                 "Без этого враг идёт строго к ратуше и не замечает ничего " +
+                 "по дороге — отряд для него не существует.")]
+        [SerializeField] private bool attackTargetsOnPath = true;
+
+        [Tooltip("Слои построек и бойцов. Ограничивает проверку, " +
+                 "чтобы не ловить землю и других врагов.")]
+        [SerializeField] private LayerMask targetLayers = ~0;
+
         [Header("Препятствия")]
         [Tooltip("Ломать ли постройки, стоящие на пути (D41).\n\n" +
                  "Приоритетов целей намеренно нет: враг идёт к ратуше и бьёт " +
@@ -63,6 +73,10 @@ namespace HeroDefense.Enemies
         private readonly List<Vector3> _separationOffsets = new();
 
         private SpatialGrid _grid;
+
+        // Общий буфер: аллокация на каждую проверку означала бы мусор
+        // каждый кадр на каждом идущем враге.
+        private static readonly Collider[] TargetBuffer = new Collider[8];
 
         // Общий буфер: аллокация на каждую проверку препятствия
         // означала бы мусор каждый кадр на каждого идущего врага.
@@ -213,6 +227,17 @@ namespace HeroDefense.Enemies
 
         private void MoveTowardsTarget(Enemy enemy, Vector3 separation, float deltaTime)
         {
+            // Сначала смотрим, не оказалось ли что-то рядом: постройка
+            // или боец отряда. Проверка вокруг врага, а не строго по курсу —
+            // иначе он проходил бы вплотную мимо башни, не заметив её.
+            Health nearby = FindTargetNearby(enemy);
+
+            if (nearby != null)
+            {
+                BeginSiege(enemy, nearby);
+                return;
+            }
+
             if (mainTarget == null)
                 return;
 
@@ -293,11 +318,56 @@ namespace HeroDefense.Enemies
             return null;
         }
 
+        /// <summary>
+        /// Дальность атаки конкретного врага. Свойство типа, а не общая
+        /// настройка менеджера — иначе лучник ничем не отличался бы
+        /// от мечника, кроме цифр, и его роль не работала бы.
+        /// </summary>
         private float ResolveAttackDistance(Enemy enemy)
         {
             float fromDefinition = enemy.AttackRange;
 
             return fromDefinition > 0f ? fromDefinition : attackDistance;
+        }
+
+        /// <summary>
+        /// Ближайшая цель в радиусе атаки: постройка или боец отряда.
+        ///
+        /// Радиус берётся из типа врага: лучник замечает и достаёт далеко,
+        /// мечник только вплотную.
+        /// </summary>
+        private Health FindTargetNearby(Enemy enemy)
+        {
+            if (!attackTargetsOnPath)
+                return null;
+
+            int count = Physics.OverlapSphereNonAlloc(
+                enemy.transform.position, ResolveAttackDistance(enemy), TargetBuffer, targetLayers);
+
+            Health best = null;
+            float bestSqr = float.MaxValue;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (TargetBuffer[i] == null)
+                    continue;
+
+                var health = TargetBuffer[i].GetComponentInParent<Health>();
+
+                if (health == null || !health.IsAlive)
+                    continue;
+
+                float distanceSqr =
+                    (health.transform.position - enemy.transform.position).sqrMagnitude;
+
+                if (distanceSqr >= bestSqr)
+                    continue;
+
+                bestSqr = distanceSqr;
+                best = health;
+            }
+
+            return best;
         }
 
         private void BeginSiege(Enemy enemy, Health target)
@@ -321,7 +391,12 @@ namespace HeroDefense.Enemies
                 return null;
             }
 
-            Enemy enemy = pool.Rent();
+            // Тип передаём в пул: у каждого своя очередь и своя модель,
+            // иначе все враги выглядели бы одинаково.
+            Enemy enemy = pool.Rent(definition);
+
+            if (enemy == null)
+                return null;
 
             enemy.Initialize(definition, definition.maxHealth, definition.moveSpeed, position);
             enemy.Died += OnEnemyDied;

@@ -155,11 +155,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Squads.SquadUnit
   moveSpeed: 4
   engageRadius: 4
-  sightRadius: 5
-  selfDefenceRadius: 2
+  sightRadius: 8
+  selfDefenceRadius: 8
   meleeDistance: 1.2
   arriveTolerance: 0.6
   retargetInterval: 0.25
+  corpseLifetime: 1
   separationRadius: 0.7
   separationStrength: 0.8
 --- !u!114 &5121423348594837969
@@ -241,9 +242,9 @@ MonoBehaviour:
   attackTrigger: Attack
   deathTrigger: Die
   hitTrigger: Hit
+  combatStanceParameter: CombatReady
   speedDamping: 0.15
   playHitReaction: 0
-  health: {fileID: 0}
 --- !u!1 &5220847857531130543
 GameObject:
   m_ObjectHideFlags: 0

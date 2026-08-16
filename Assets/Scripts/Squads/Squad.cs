@@ -21,8 +21,15 @@ namespace HeroDefense.Squads
         [SerializeField] private int maxUnits = 6;
 
         [Header("Построение")]
-        [Tooltip("Радиус кольца, в котором бойцы стоят вокруг флага.")]
-        [SerializeField] private float formationRadius = 1.5f;
+        [Tooltip("Расстояние между бойцами в строю.")]
+        [SerializeField] private float formationSpacing = 0.9f;
+
+        [Tooltip("Сколько бойцов в шеренге. Остальные встают во вторую и третью.\n\n" +
+                 "Прямоугольный строй вместо кольца: кольцо читалось как " +
+                 "«разбежались вокруг точки», строй — как единица. " +
+                 "Плюс он развёрнут фронтом к угрозе, и видно, куда смотрит отряд.")]
+        [Min(1)]
+        [SerializeField] private int unitsPerRow = 3;
 
         [Header("Тревога")]
         [Tooltip("Сколько врагов рядом, чтобы отряд снялся с места ВСЕМ составом.\n\n" +
@@ -53,6 +60,13 @@ namespace HeroDefense.Squads
                  "Сдвиг всего строя решает это, не растягивая отряд.")]
         [SerializeField] private float rallyShift = 2.5f;
 
+        [Tooltip("Максимальный сдвиг строя, когда до врага иначе не дотянуться.\n\n" +
+                 "Лучник бьёт с 8, поводок бойца 4, обычный сдвиг 2.5 — итого 6.5. " +
+                 "Отряд стоял бы под обстрелом и физически не мог достать. " +
+                 "Против стрелков строй подходит настолько, насколько нужно, " +
+                 "но не дальше этого предела.")]
+        [SerializeField] private float maxRallyShift = 7f;
+
         [Header("Командир")]
         [Tooltip("Зарезервировано под трейты командира (D19). Пока не используется.")]
         [SerializeField] private string commanderId = string.Empty;
@@ -68,6 +82,7 @@ namespace HeroDefense.Squads
         private float _alertStartedAt = -1f;
 
         private Vector3 _threatDirection;
+        private float _threatDistance;
         private bool _formationShifted;
 
         public int MaxUnits => maxUnits;
@@ -92,6 +107,12 @@ namespace HeroDefense.Squads
         ///
         /// Здесь задержки нет: по нам уже бьют, подтягиваться поздно.
         /// </summary>
+        /// <summary>
+        /// Тревога при уроне по своей постройке. Отдельный метод от RaiseAlert
+        /// только ради читаемости вызова — поведение одинаковое.
+        /// </summary>
+        public void RaiseAlertOnBuildingDamage() => RaiseAlert();
+
         public void RaiseAlert()
         {
             _alertTimer = alertHoldTime;
@@ -135,12 +156,6 @@ namespace HeroDefense.Squads
         /// </summary>
         private void TickAlert(float deltaTime)
         {
-            // Казарма создаёт отряд сразу, а бойцы появляются позже.
-            // Пустому отряду сканировать нечего, а перебор по всем врагам
-            // стоит денег — при четырёх казармах это четыре лишних скана.
-            if (_units.Count == 0)
-                return;
-
             _alertTimer -= deltaTime;
             _scanTimer -= deltaTime;
 
@@ -190,7 +205,11 @@ namespace HeroDefense.Squads
         /// </summary>
         private void UpdateThreatDirection(EnemyManager manager)
         {
-            Enemy nearest = manager.FindNearest(_flagPosition, alertRadius);
+            // Ищем дальше зоны оценки: стрелок, бьющий с восьми метров,
+            // не попадал в alertRadius = 6, направление угрозы оставалось
+            // пустым, и сдвиг строя не срабатывал вообще. Отряд знал,
+            // что его бьют, но не знал откуда.
+            Enemy nearest = manager.FindNearest(_flagPosition, ThreatSearchRadius);
 
             if (nearest == null)
                 return;
@@ -202,6 +221,7 @@ namespace HeroDefense.Squads
                 return;
 
             _threatDirection = delta.normalized;
+            _threatDistance = delta.magnitude;
         }
 
         /// <summary>
@@ -211,8 +231,53 @@ namespace HeroDefense.Squads
         /// каждому по отдельности, отряд перестаёт быть отрядом.
         /// </summary>
         private Vector3 FormationCenter => IsAlerted
-            ? _flagPosition + _threatDirection * rallyShift
+            ? _flagPosition + _threatDirection * ResolveShift()
             : _flagPosition;
+
+        /// <summary>
+        /// Радиус поиска источника угрозы. Заведомо больше зоны оценки:
+        /// нам нужно найти того, кто бьёт издалека, даже если по количеству
+        /// врагов рядом тревога бы не поднялась.
+        /// </summary>
+        private float ThreatSearchRadius => maxRallyShift + UnitReach + alertRadius;
+
+        /// <summary>
+        /// Насколько сдвинуть строй. Обычно на rallyShift, но если враг
+        /// дальше — подходим настолько, чтобы бойцы могли его достать.
+        ///
+        /// Иначе отряд под обстрелом лучника стоит и умирает: тот бьёт
+        /// с восьми метров, а бойцы дотягиваются на шесть с половиной.
+        /// </summary>
+        private float ResolveShift()
+        {
+            if (_threatDistance <= rallyShift)
+                return rallyShift;
+
+            // Подходим так, чтобы враг оказался в пределах досягаемости
+            // бойцов, но не дальше предела: иначе отряд утянется через
+            // всю карту за одиночным стрелком.
+            float needed = _threatDistance - UnitReach;
+
+            return Mathf.Clamp(needed, rallyShift, maxRallyShift);
+        }
+
+        /// <summary>
+        /// Насколько далеко достаёт боец от своего якоря.
+        /// Берём у первого живого — в отряде все одного типа.
+        /// </summary>
+        private float UnitReach
+        {
+            get
+            {
+                for (int i = 0; i < _units.Count; i++)
+                {
+                    if (_units[i] != null && _units[i].IsAlive)
+                        return _units[i].TotalReach;
+                }
+
+                return 4f;
+            }
+        }
 
         /// <summary>
         /// Строй пересобирается только при смене состояния тревоги,
@@ -248,7 +313,27 @@ namespace HeroDefense.Squads
             _flagPosition = position;
             _hasFlag = true;
 
+            // Приказ короля отменяет тревогу.
+            //
+            // Без сброса строй оставался бы развёрнутым к старой угрозе
+            // и сдвинутым в её сторону: отряд вроде и получил новый флаг,
+            // но продолжал смотреть назад. Игрок переставляет флаг именно
+            // тогда, когда решил, что здесь важнее — спорить с ним не надо.
+            CancelAlert();
+
             AssignFormationPositions();
+        }
+
+        /// <summary>
+        /// Снять тревогу немедленно. Строй перестаёт быть сдвинутым
+        /// и возвращается к флагу.
+        /// </summary>
+        private void CancelAlert()
+        {
+            _alertTimer = 0f;
+            _alertStartedAt = -1f;
+            _threatDirection = Vector3.zero;
+            _formationShifted = false;
         }
 
         /// <summary>Убрать флаг. Отряд пойдёт к точке сбора у своей постройки.</summary>
@@ -256,6 +341,11 @@ namespace HeroDefense.Squads
         {
             _flagPosition = fallbackPosition;
             _hasFlag = false;
+
+            // Как и с установкой флага: приказ отменяет тревогу.
+            // Отряд, отозванный на лечение, не должен продолжать
+            // разворачиваться к врагу вместо ухода.
+            CancelAlert();
 
             AssignFormationPositions();
         }
@@ -307,6 +397,7 @@ namespace HeroDefense.Squads
 
             for (int i = _units.Count - 1; i >= 0; i--)
             {
+                // Боец мог уже погибнуть и уничтожиться — проверка обязательна.
                 if (_units[i] != null)
                     Destroy(_units[i].gameObject);
             }
@@ -332,6 +423,13 @@ namespace HeroDefense.Squads
         /// Если дать всем одну точку, они будут толкаться в ней.
         /// Кольцо решает это без физики и даёт узнаваемый силуэт отряда.
         /// </summary>
+        /// <summary>
+        /// Прямоугольный строй, развёрнутый к угрозе.
+        ///
+        /// Кольцо, которое было раньше, выглядело как «разбежались вокруг
+        /// точки». Строй читается как единица и показывает направление —
+        /// игрок видит, куда смотрит отряд, не приглядываясь.
+        /// </summary>
         private void AssignFormationPositions()
         {
             int count = _units.Count;
@@ -340,26 +438,41 @@ namespace HeroDefense.Squads
                 return;
 
             Vector3 center = FormationCenter;
+            Vector3 forward = FormationForward;
+            Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
 
-            if (count == 1)
-            {
-                _units[0].SetAnchor(center);
-                return;
-            }
+            int rows = Mathf.CeilToInt(count / (float)unitsPerRow);
 
             for (int i = 0; i < count; i++)
             {
                 if (_units[i] == null)
                     continue;
 
-                float angle = i / (float)count * Mathf.PI * 2f;
+                int row = i / unitsPerRow;
+                int column = i % unitsPerRow;
 
-                Vector3 offset = new Vector3(
-                    Mathf.Cos(angle) * formationRadius,
-                    0f,
-                    Mathf.Sin(angle) * formationRadius);
+                // Ширина шеренги считается по факту: последний ряд может быть
+                // неполным, и без этого он выглядел бы сдвинутым вбок.
+                int unitsInThisRow = Mathf.Min(unitsPerRow, count - row * unitsPerRow);
 
-                _units[i].SetAnchor(center + offset);
+                float offsetX = (column - (unitsInThisRow - 1) * 0.5f) * formationSpacing;
+                float offsetZ = -(row - (rows - 1) * 0.5f) * formationSpacing;
+
+                _units[i].SetAnchor(center + right * offsetX + forward * offsetZ);
+            }
+        }
+
+        /// <summary>
+        /// Куда смотрит строй: на угрозу, если она известна.
+        /// </summary>
+        private Vector3 FormationForward
+        {
+            get
+            {
+                if (_threatDirection.sqrMagnitude > 0.01f)
+                    return _threatDirection;
+
+                return Vector3.forward;
             }
         }
 
