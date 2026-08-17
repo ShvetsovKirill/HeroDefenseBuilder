@@ -20,8 +20,8 @@ MonoBehaviour:
   moveSpeed: 6
   acceleration: 12
   turnSpeedDeg: 540
-  attackDamage: 6
-  fireRate: 1.5
+  attackDamage: 10
+  fireRate: 3
   attackRange: 5.5
   enduranceThreshold: 100
   respawnDelay: 10

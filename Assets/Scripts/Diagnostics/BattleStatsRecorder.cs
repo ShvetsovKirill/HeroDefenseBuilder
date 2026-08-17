@@ -39,7 +39,14 @@ namespace HeroDefense.Diagnostics
 
         private void Start()
         {
-            BattleStats.Reset(Wallet != null ? Wallet.Gold : 0);
+            int startingGold = Wallet != null ? Wallet.Gold : 0;
+
+            BattleStats.Reset(startingGold);
+
+            // Опорное значение берём сразу, а не с нуля: иначе первое же
+            // поступление считалось приходом на весь стартовый кошелёк.
+            _goldBefore = startingGold;
+
             Subscribe();
         }
 
@@ -95,8 +102,6 @@ namespace HeroDefense.Diagnostics
         private void OnWaveStarted(int waveNumber)
         {
             BattleStats.BeginWave(waveNumber);
-
-            _goldBefore = Wallet != null ? Wallet.Gold : 0;
         }
 
         private void OnWaveCleared(int waveNumber)
@@ -137,15 +142,21 @@ namespace HeroDefense.Diagnostics
         }
 
         /// <summary>
-        /// Траты считаем по убыли кошелька: перехватывать каждую покупку
-        /// значило бы дописывать вызовы в постройку, пополнение отряда
-        /// и всё остальное, что тратит золото.
+        /// Движение золота считаем по кошельку — он единственный источник
+        /// правды. Перехватывать каждую покупку значило бы дописывать вызовы
+        /// в постройку, пополнение отряда и всё остальное, что тратит золото.
+        ///
+        /// Приход тоже отсюда, а не из наград за убийства: пассивный доход
+        /// ратуши и экономики (D45) идёт мимо наград, и «заработано» его
+        /// не видело вовсе — остаток в отчёте не сходился с кошельком.
         /// </summary>
         private void OnGoldChanged(int gold)
         {
             int delta = gold - _goldBefore;
 
-            if (delta < 0)
+            if (delta > 0)
+                BattleStats.RegisterGoldEarned(delta);
+            else if (delta < 0)
                 BattleStats.RegisterGoldSpent(-delta);
 
             _goldBefore = gold;
@@ -173,7 +184,11 @@ namespace HeroDefense.Diagnostics
 
             if (keyboard.f3Key.wasPressedThisFrame)
             {
-                BattleStats.Reset();
+                int gold = Wallet != null ? Wallet.Gold : 0;
+
+                BattleStats.Reset(gold);
+                _goldBefore = gold;
+
                 Debug.Log("[Замер] Статистика сброшена.");
             }
         }

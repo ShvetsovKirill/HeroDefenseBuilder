@@ -64,6 +64,11 @@ namespace HeroDefense.Building
         {
             _definition = definition;
             _slot = slot;
+
+            // Симметрично RegisterBuildingLost ниже: без учёта возведённых
+            // отчёт показывал только потери, и понять, что стоит на карте,
+            // было нельзя.
+            HeroDefense.Diagnostics.BattleStats.RegisterBuildingPlaced();
         }
 
         private void OnDied()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using HeroDefense.Meta;
 
 namespace HeroDefense.Building
 {
@@ -55,7 +56,18 @@ namespace HeroDefense.Building
             return _built.TryGetValue(definition, out int count) ? count : 0;
         }
 
-        /// <summary>Действующий лимит: базовый из ассета плюс чертежи.</summary>
+        /// <summary>
+        /// Действующий лимит: сколько карточек этого типа взято в забег
+        /// плюс чертежи, выпавшие по ходу (D88).
+        ///
+        /// Колода заменила собой лимиты из ассетов (D122): раньше потолок
+        /// задавался maxCount, теперь — тем, что игрок решил взять с собой.
+        /// Так выбор делается до забега и стоит престижа.
+        ///
+        /// Если колода не собрана, значит сцена Battle запущена напрямую
+        /// из редактора — тогда работаем по старому, от maxCount. Иначе
+        /// тестировать бой можно было бы только через замок.
+        /// </summary>
         public int GetLimit(BuildingDefinition definition)
         {
             if (definition == null)
@@ -63,7 +75,11 @@ namespace HeroDefense.Building
 
             int bonus = _bonusLimits.TryGetValue(definition, out int b) ? b : 0;
 
-            return definition.maxCount + bonus;
+            int baseLimit = RunLoadout.IsConfigured
+                ? RunLoadout.GetCount(definition)
+                : definition.maxCount;
+
+            return baseLimit + bonus;
         }
 
         public int GetRemaining(BuildingDefinition definition)
@@ -89,7 +105,16 @@ namespace HeroDefense.Building
             Changed?.Invoke();
         }
 
-        /// <summary>Постройка снесена или разрушена — место освободилось.</summary>
+        /// <summary>
+        /// Постройка снесена или разрушена — место освободилось, карточка
+        /// вернулась в колоду (D123).
+        ///
+        /// Возвращать право обязательно: за прошлый прогон погибло пять
+        /// построек из девяти, и без возврата колода пустела бы к третьему
+        /// акту ровно тогда, когда угроза максимальна — спираль поражения,
+        /// против которой существует D44. Золото при этом не возвращается:
+        /// восстановление остаётся платным (D42).
+        /// </summary>
         public void RegisterRemoved(BuildingDefinition definition)
         {
             if (definition == null || !_built.TryGetValue(definition, out int count))
@@ -127,7 +152,7 @@ namespace HeroDefense.Building
         }
 
         /// <summary>
-        /// Проверка настройки: сумма лимитов должна быть больше числа слотов.
+        /// Проверка настройки: доступного должно быть больше, чем слотов.
         /// Иначе игрок строит всё разрешённое, и выбора между типами нет.
         /// </summary>
         public void ValidateAgainstSlots(BuildingDefinition[] catalog, int slotCount)
@@ -137,19 +162,26 @@ namespace HeroDefense.Building
 
             int total = 0;
 
-            foreach (BuildingDefinition definition in catalog)
+            if (RunLoadout.IsConfigured)
             {
-                if (definition != null)
-                    total += definition.maxCount;
+                total = RunLoadout.TotalCards;
+            }
+            else
+            {
+                foreach (BuildingDefinition definition in catalog)
+                {
+                    if (definition != null)
+                        total += definition.maxCount;
+                }
             }
 
             if (total > slotCount)
                 return;
 
             Debug.LogWarning(
-                $"[BuildRegistry] Сумма лимитов ({total}) не больше числа слотов ({slotCount}). " +
+                $"[BuildRegistry] Доступно построек ({total}) не больше числа слотов ({slotCount}). " +
                 "Игрок сможет построить всё разрешённое — выбор между типами исчезает. " +
-                "Подними лимиты в ассетах построек (D86).", this);
+                "Увеличь размер колоды (D124) или лимиты в ассетах (D86).", this);
         }
     }
 }

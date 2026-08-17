@@ -10,33 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a3917e92874c50428bb91d4bebb17b1, type: 3}
-  m_Name: Wave8
+  m_Name: Wave19
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Waves.WaveDefinition
-  displayName: "\u0412\u043E\u043B\u043D\u0430 8"
+  displayName: "\u0412\u043E\u043B\u043D\u0430 19"
   groups:
   - enemy: {fileID: 11400000, guid: a8fbfcf224840fd45a4390a01dc5568b, type: 2}
-    count: 6
+    count: 12
     spawnPointIndex: 2
     startDelay: 0
-    interval: 0.4
+    interval: 1.1
     burstSize: 2
-  - enemy: {fileID: 11400000, guid: a8fbfcf224840fd45a4390a01dc5568b, type: 2}
-    count: 3
-    spawnPointIndex: 1
-    startDelay: 3
-    interval: 0.5
+  - enemy: {fileID: 11400000, guid: e6c2a520bae3ee84faf539b61904cd88, type: 2}
+    count: 10
+    spawnPointIndex: 0
+    startDelay: 2
+    interval: 1.2
     burstSize: 1
   - enemy: {fileID: 11400000, guid: e6c2a520bae3ee84faf539b61904cd88, type: 2}
-    count: 2
-    spawnPointIndex: 0
-    startDelay: 6
-    interval: 0.6
+    count: 4
+    spawnPointIndex: 1
+    startDelay: 12
+    interval: 1.5
     burstSize: 1
   - enemy: {fileID: 11400000, guid: 198088aceccc52e43a7f298401bfba39, type: 2}
-    count: 1
+    count: 3
     spawnPointIndex: 1
-    startDelay: 4
-    interval: 1
+    startDelay: 6
+    interval: 3
     burstSize: 1
   breakAfter: 12
   waitForClear: 1

@@ -43,10 +43,27 @@ namespace HeroDefense.Diagnostics
             /// </summary>
             public int EnemiesReachedBase;
 
+            /// <summary>
+            /// Все поступления: награды за убийства плюс пассивный доход
+            /// ратуши и экономики (D45). Считается по кошельку, а не по
+            /// наградам — иначе доход зданий не виден вовсе.
+            /// </summary>
             public int GoldEarned;
+
+            /// <summary>Справочно: сколько из заработка пришло с убийств.</summary>
+            public int GoldFromKills;
+
             public int GoldSpent;
 
             public int UnitsLost;
+
+            /// <summary>
+            /// Возведено за этот отрезок. Раньше отчёт показывал только потери,
+            /// и понять, что вообще стоит на карте, было нельзя — а от этого
+            /// зависит престиж за уцелевшее (D119).
+            /// </summary>
+            public int BuildingsPlaced;
+
             public int BuildingsLost;
 
             public float TownHallDamage;
@@ -54,6 +71,38 @@ namespace HeroDefense.Diagnostics
 
             public readonly Dictionary<DamageSource, int> KillsBySource = new();
             public readonly Dictionary<DamageSource, float> DamageBySource = new();
+
+            /// <summary>
+            /// Перелить накопленное в паузе в эту волну. Нужно только
+            /// для стартовой паузы: там ещё нет волны, к которой приписать.
+            /// </summary>
+            public void Absorb(WaveRecord other)
+            {
+                if (other == null)
+                    return;
+
+                EnemiesKilled += other.EnemiesKilled;
+                EnemiesReachedBase += other.EnemiesReachedBase;
+                GoldEarned += other.GoldEarned;
+                GoldFromKills += other.GoldFromKills;
+                GoldSpent += other.GoldSpent;
+                UnitsLost += other.UnitsLost;
+                BuildingsPlaced += other.BuildingsPlaced;
+                BuildingsLost += other.BuildingsLost;
+                TownHallDamage += other.TownHallDamage;
+
+                foreach (KeyValuePair<DamageSource, int> pair in other.KillsBySource)
+                {
+                    KillsBySource.TryGetValue(pair.Key, out int current);
+                    KillsBySource[pair.Key] = current + pair.Value;
+                }
+
+                foreach (KeyValuePair<DamageSource, float> pair in other.DamageBySource)
+                {
+                    DamageBySource.TryGetValue(pair.Key, out float current);
+                    DamageBySource[pair.Key] = current + pair.Value;
+                }
+            }
         }
 
         private static readonly List<WaveRecord> Waves = new();
@@ -61,12 +110,19 @@ namespace HeroDefense.Diagnostics
         private static float _waveStartedAt;
 
         /// <summary>
+        /// Буфер стартовой паузы — до того, как началась первая волна.
+        /// Игрок успевает построить здание за level.startDelay, и эти
+        /// траты некуда было записать: волны ещё нет.
+        /// </summary>
+        private static WaveRecord _beforeFirstWave = new();
+
+        /// <summary>
         /// Золото на старте забега. Без него баланс уходил в минус:
         /// траты считались от нуля, хотя игрок начинал не с пустым кошельком.
         /// </summary>
         private static int _startingGold;
 
-        /// <summary>Идёт ли запись. Ложь между волнами.</summary>
+        /// <summary>Идёт ли волна. Ложь в паузе между волнами.</summary>
         public static bool IsRecording => _current != null;
 
         public static IReadOnlyList<WaveRecord> AllWaves => Waves;
@@ -77,6 +133,7 @@ namespace HeroDefense.Diagnostics
         {
             Waves.Clear();
             _current = null;
+            _beforeFirstWave = new WaveRecord();
             _startingGold = startingGold;
         }
 
@@ -84,6 +141,14 @@ namespace HeroDefense.Diagnostics
         {
             _current = new WaveRecord { WaveNumber = waveNumber };
             _waveStartedAt = Time.time;
+
+            // Всё, что игрок сделал до первой волны, приписываем к ней:
+            // отдельная строка «до боя» в отчёте только мешала бы читать.
+            if (Waves.Count == 0)
+            {
+                _current.Absorb(_beforeFirstWave);
+                _beforeFirstWave = new WaveRecord();
+            }
         }
 
         public static void EndWave(float townHallHealth)
@@ -102,35 +167,55 @@ namespace HeroDefense.Diagnostics
 
         public static void RegisterKill(DamageSource source, int goldReward)
         {
-            if (_current == null)
-                return;
+            WaveRecord record = Target;
 
-            _current.EnemiesKilled++;
-            _current.GoldEarned += goldReward;
+            record.EnemiesKilled++;
+            record.GoldFromKills += goldReward;
 
-            _current.KillsBySource.TryGetValue(source, out int kills);
-            _current.KillsBySource[source] = kills + 1;
+            record.KillsBySource.TryGetValue(source, out int kills);
+            record.KillsBySource[source] = kills + 1;
         }
 
         public static void RegisterDamage(DamageSource source, float amount)
         {
-            if (_current == null)
-                return;
+            WaveRecord record = Target;
 
-            _current.DamageBySource.TryGetValue(source, out float total);
-            _current.DamageBySource[source] = total + amount;
+            record.DamageBySource.TryGetValue(source, out float total);
+            record.DamageBySource[source] = total + amount;
         }
 
-        public static void RegisterEnemyReachedBase() => Add(r => r.EnemiesReachedBase++);
-        public static void RegisterUnitLost() => Add(r => r.UnitsLost++);
-        public static void RegisterBuildingLost() => Add(r => r.BuildingsLost++);
-        public static void RegisterGoldSpent(int amount) => Add(r => r.GoldSpent += amount);
-        public static void RegisterTownHallDamage(float amount) => Add(r => r.TownHallDamage += amount);
+        public static void RegisterEnemyReachedBase() => Target.EnemiesReachedBase++;
+        public static void RegisterUnitLost() => Target.UnitsLost++;
+        public static void RegisterBuildingPlaced() => Target.BuildingsPlaced++;
+        public static void RegisterBuildingLost() => Target.BuildingsLost++;
+        public static void RegisterGoldEarned(int amount) => Target.GoldEarned += amount;
+        public static void RegisterGoldSpent(int amount) => Target.GoldSpent += amount;
+        public static void RegisterTownHallDamage(float amount) => Target.TownHallDamage += amount;
 
-        private static void Add(Action<WaveRecord> action)
+        /// <summary>
+        /// Куда писать событие.
+        ///
+        /// Раньше запись шла только в активную волну, а вне её молча
+        /// отбрасывалась — из-за этого терялись ВСЕ покупки: строить можно
+        /// только в паузу между волнами (BuildSlot запрещает стройку в бою).
+        /// Отчёт показывал «потрачено 0» при двух построенных башнях.
+        ///
+        /// Теперь события паузы приписываются к предыдущей волне: игрок
+        /// тратит золото, заработанное на ней, и читать это в её строке
+        /// естественнее всего.
+        /// </summary>
+        private static WaveRecord Target
         {
-            if (_current != null)
-                action(_current);
+            get
+            {
+                if (_current != null)
+                    return _current;
+
+                if (Waves.Count > 0)
+                    return Waves[Waves.Count - 1];
+
+                return _beforeFirstWave;
+            }
         }
 
         // ---------- Сводка ----------
@@ -171,8 +256,12 @@ namespace HeroDefense.Diagnostics
             int killsTotal = 0;
             int reached = 0;
             int unitsLost = 0;
+            int buildingsPlaced = 0;
+            int buildingsLost = 0;
             int goldEarned = 0;
+            int goldFromKills = 0;
             int goldSpent = 0;
+            float townHallDamage = 0f;
 
             var killsBySource = new Dictionary<DamageSource, int>();
 
@@ -181,8 +270,12 @@ namespace HeroDefense.Diagnostics
                 killsTotal += wave.EnemiesKilled;
                 reached += wave.EnemiesReachedBase;
                 unitsLost += wave.UnitsLost;
+                buildingsPlaced += wave.BuildingsPlaced;
+                buildingsLost += wave.BuildingsLost;
                 goldEarned += wave.GoldEarned;
+                goldFromKills += wave.GoldFromKills;
                 goldSpent += wave.GoldSpent;
+                townHallDamage += wave.TownHallDamage;
 
                 foreach (KeyValuePair<DamageSource, int> pair in wave.KillsBySource)
                 {
@@ -191,18 +284,19 @@ namespace HeroDefense.Diagnostics
                 }
             }
 
+            int passive = Mathf.Max(0, goldEarned - goldFromKills);
+
             text.AppendLine();
             text.AppendLine($"Волн пройдено: {Waves.Count}");
             text.AppendLine($"Убито врагов: {killsTotal}, прорвались к ратуше: {reached}");
-            float townHallDamage = 0f;
-
-            foreach (WaveRecord wave in Waves)
-                townHallDamage += wave.TownHallDamage;
-
             text.AppendLine($"Потеряно бойцов: {unitsLost}");
+            text.AppendLine(
+                $"Постройки: возведено {buildingsPlaced}, потеряно {buildingsLost}, " +
+                $"стоит {Mathf.Max(0, buildingsPlaced - buildingsLost)}");
             text.AppendLine($"Урон по ратуше за забег: {townHallDamage:F0}");
             text.AppendLine(
-                $"Золото: старт {_startingGold}, заработано {goldEarned}, " +
+                $"Золото: старт {_startingGold}, заработано {goldEarned} " +
+                $"(с убийств {goldFromKills}, пассивно {passive}), " +
                 $"потрачено {goldSpent}, остаток {_startingGold + goldEarned - goldSpent}");
             text.AppendLine();
 
@@ -215,7 +309,7 @@ namespace HeroDefense.Diagnostics
                 text.AppendLine($"  {Localize(pair.Key),-8} {pair.Value,4} ({percent,5:F1}%)");
             }
 
-            AppendVerdict(text, killsBySource, killsTotal);
+            AppendVerdict(text, killsBySource, killsTotal, goldEarned, goldSpent);
         }
 
         /// <summary>
@@ -224,7 +318,11 @@ namespace HeroDefense.Diagnostics
         /// чтобы не пропустить очевидное в столбцах цифр.
         /// </summary>
         private static void AppendVerdict(
-            StringBuilder text, Dictionary<DamageSource, int> kills, int total)
+            StringBuilder text,
+            Dictionary<DamageSource, int> kills,
+            int total,
+            int goldEarned,
+            int goldSpent)
         {
             if (total == 0)
                 return;
@@ -246,20 +344,10 @@ namespace HeroDefense.Diagnostics
                 text.AppendLine($"  ✓ Доля короля {kingShare:F0}% — в норме.");
 
             if (squadKills == 0)
-                text.AppendLine("  ⚠ Отряды не убили никого. Роль затычки не работает.");
+                text.AppendLine("  ⚠ Отряды не убили никого. Либо казарма не построена, либо роль не работает.");
 
             if (towerKills == 0)
                 text.AppendLine("  ⚠ Башни не убили никого. Либо не построены, либо стоят не там.");
-
-            // Экономика: если остаток огромный, деньги некуда девать.
-            int goldEarned = 0;
-            int goldSpent = 0;
-
-            foreach (WaveRecord wave in Waves)
-            {
-                goldEarned += wave.GoldEarned;
-                goldSpent += wave.GoldSpent;
-            }
 
             int leftover = _startingGold + goldEarned - goldSpent;
 
