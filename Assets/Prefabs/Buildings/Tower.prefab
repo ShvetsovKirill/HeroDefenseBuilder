@@ -195,7 +195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Combat.AutoAttacker
   damage: 6
   fireRate: 1.5
-  range: 8
+  range: 10
   retargetInterval: 0.2
   searchOwnTarget: 1
   provokeRetaliation: 0

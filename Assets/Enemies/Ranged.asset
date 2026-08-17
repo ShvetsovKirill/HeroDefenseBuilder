@@ -17,6 +17,6 @@ MonoBehaviour:
   moveSpeed: 2.7
   attackRange: 8
   projectilePrefab: {fileID: 1045824427363707743, guid: 42030850533ceb949ac8d710891d3c9e, type: 3}
-  goldReward: 3
+  goldReward: 5
   threatCost: 2
   prefabOverride: {fileID: 890109183449593501, guid: 9a5c3b25f067292468cb6c80b0a53266, type: 3}

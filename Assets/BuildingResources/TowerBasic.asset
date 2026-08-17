@@ -15,8 +15,9 @@ MonoBehaviour:
   displayName: "\u0411\u0430\u0448\u043D\u044F"
   description: "\u0411\u0430\u0448\u043D\u044F"
   icon: {fileID: 0}
-  cost: 120
+  cost: 80
   prefab: {fileID: 7384272259453288396, guid: d48844921d5417245a27627638d5e34e, type: 3}
+  statLine: 
   category: 0
   maxCount: 5
   allowBlueprints: 1
