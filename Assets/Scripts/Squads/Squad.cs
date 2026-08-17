@@ -48,7 +48,7 @@ namespace HeroDefense.Squads
 
         [Tooltip("Сколько секунд тревога держится после того, как враги кончились. " +
                  "Без выдержки отряд дёргался бы туда-обратно на границе радиуса.")]
-        [SerializeField] private float alertHoldTime = 2f;
+        [SerializeField] private float alertHoldTime = 1f;
 
         [Tooltip("Как часто отряд оценивает обстановку.")]
         [SerializeField] private float scanInterval = 0.3f;
@@ -67,6 +67,13 @@ namespace HeroDefense.Squads
                  "но не дальше этого предела.")]
         [SerializeField] private float maxRallyShift = 7f;
 
+        [Tooltip("Сколько секунд источник урона остаётся приоритетной целью.\n\n" +
+                 "Без этого скан и обстрел спорят за направление: стрела " +
+                 "развернула строй к лучнику, через 0.3 сек скан нашёл " +
+                 "ближайшего врага и развернул обратно, потом снова стрела — " +
+                 "и отряд мечется вместо того, чтобы дойти до стрелка.")]
+        [SerializeField] private float threatPriorityTime = 3f;
+
         [Header("Командир")]
         [Tooltip("Зарезервировано под трейты командира (D19). Пока не используется.")]
         [SerializeField] private string commanderId = string.Empty;
@@ -83,6 +90,7 @@ namespace HeroDefense.Squads
 
         private Vector3 _threatDirection;
         private float _threatDistance;
+        private float _priorityUntil;
         private bool _formationShifted;
 
         public int MaxUnits => maxUnits;
@@ -127,8 +135,15 @@ namespace HeroDefense.Squads
                 ? HeroDefense.Core.SceneContext.Current.EnemyManager
                 : null;
 
-            if (manager != null)
-                UpdateThreatDirection(manager);
+            if (manager == null)
+                return;
+
+            UpdateThreatDirection(manager);
+
+            // Источник урона держит направление несколько секунд —
+            // за это время отряд успевает до него дойти, и скан
+            // не перебьёт стрелка ближайшим врагом.
+            _priorityUntil = Time.time + threatPriorityTime;
         }
 
         /// <summary>
@@ -188,7 +203,14 @@ namespace HeroDefense.Squads
             if (nearby < alertThreshold)
                 return;
 
-            UpdateThreatDirection(manager);
+            // Направление трогаем, только если не действует приоритет
+            // от полученного урона: иначе скан перебивал бы стрелка
+            // ближайшим врагом каждые 0.3 секунды.
+            //
+            // Но саму тревогу продлеваем в любом случае — иначе она
+            // затухала бы именно тогда, когда по нам стреляют.
+            if (Time.time >= _priorityUntil)
+                UpdateThreatDirection(manager);
 
             // Момент сигнала запоминаем только при подъёме тревоги,
             // иначе задержка сбрасывалась бы каждый скан.
@@ -334,6 +356,7 @@ namespace HeroDefense.Squads
             _alertStartedAt = -1f;
             _threatDirection = Vector3.zero;
             _formationShifted = false;
+            _priorityUntil = 0f;
         }
 
         /// <summary>Убрать флаг. Отряд пойдёт к точке сбора у своей постройки.</summary>
@@ -375,6 +398,8 @@ namespace HeroDefense.Squads
             _units.Remove(unit);
 
             UnitLost?.Invoke(this);
+
+            HeroDefense.Diagnostics.BattleStats.RegisterUnitLost();
 
             if (_units.Count == 0)
                 Wiped?.Invoke(this);

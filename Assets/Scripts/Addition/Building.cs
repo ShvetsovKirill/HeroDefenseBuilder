@@ -75,6 +75,8 @@ namespace HeroDefense.Building
 
             Destroyed?.Invoke(this);
 
+            HeroDefense.Diagnostics.BattleStats.RegisterBuildingLost();
+
             if (_slot != null)
                 _slot.OnBuildingDestroyed();
 

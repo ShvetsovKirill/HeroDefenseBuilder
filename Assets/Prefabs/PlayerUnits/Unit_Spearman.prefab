@@ -181,6 +181,7 @@ MonoBehaviour:
   retargetInterval: 0.2
   searchOwnTarget: 1
   provokeRetaliation: 0
+  statsSource: 2
   projectilePrefab: {fileID: 1045824427363707743, guid: bb1749c2a03a2004a8b51cec4c53958f, type: 3}
   muzzle: {fileID: 0}
   shotLine: {fileID: 0}

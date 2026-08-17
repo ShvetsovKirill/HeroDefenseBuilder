@@ -47,7 +47,6 @@ namespace HeroDefense.Building
 
         private Health _health;
         private float _timer;
-        private bool _started;
 
         /// <summary>Начислено золото. Аргумент — сумма. Для всплывающей цифры над зданием.</summary>
         public event Action<int> IncomeGenerated;
@@ -88,7 +87,6 @@ namespace HeroDefense.Building
                 return;
 
             _timer = 0f;
-            _started = true;
 
             Payout();
         }

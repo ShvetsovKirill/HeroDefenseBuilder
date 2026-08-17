@@ -66,6 +66,15 @@ namespace HeroDefense.Enemies
         /// </summary>
         public float AttackRange => Definition != null ? Definition.attackRange : 2.5f;
 
+        /// <summary>
+        /// Кто последним нанёс урон. Нужно для замеров: убийство
+        /// записывается тому, чей выстрел оказался последним.
+        ///
+        /// Не идеально — добивший получает всё, — но для оценки
+        /// «кто вообще воюет» точности достаточно.
+        /// </summary>
+        public HeroDefense.Diagnostics.DamageSource LastDamageSource { get; set; }
+
         [Header("Бой")]
         [SerializeField] private float attackDamage = 10f;
 
@@ -113,6 +122,7 @@ namespace HeroDefense.Enemies
             CurrentState = State.Moving;
             AttackTarget = null;
             _attackCooldown = 0f;
+            LastDamageSource = HeroDefense.Diagnostics.DamageSource.Unknown;
 
             Version++;
 

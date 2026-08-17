@@ -46,6 +46,14 @@ namespace HeroDefense.Combat
                  "и переставала бы осаждать что-либо.")]
         [SerializeField] private bool provokeRetaliation;
 
+        [Header("Статистика")]
+        [Tooltip("Кем считать этот источник урона в замерах баланса.\n\n" +
+                 "Король / Башня / Отряд — по этим категориям потом видно, " +
+                 "работает ли эскалация: если король убивает больше половины, " +
+                 "башни и отряды остались декорацией.")]
+        [SerializeField] private HeroDefense.Diagnostics.DamageSource statsSource
+            = HeroDefense.Diagnostics.DamageSource.Unknown;
+
         [Header("Снаряд")]
         [Tooltip("Префаб снаряда. Пусто — урон мгновенный (хитскан).\n\n" +
                  "Снаряд нужен там, где важно видеть, кто в кого стреляет: " +
@@ -209,6 +217,12 @@ namespace HeroDefense.Combat
             // Источник передаём, только если этот стрелок должен провоцировать
             // ответ: башни и король бьют «безнаказанно» осознанно.
             Health source = provokeRetaliation ? _ownHealth : null;
+
+            HeroDefense.Diagnostics.BattleStats.RegisterDamage(statsSource, damage);
+
+            // Помечаем врага: когда он умрёт, убийство запишется на нас.
+            if (_target != null)
+                _target.LastDamageSource = statsSource;
 
             if (TryLaunchProjectile(source))
                 return;
