@@ -3718,6 +3718,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578988744}
   m_CullTransparentMesh: 1
+--- !u!1 &582565348
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 582565350}
+  - component: {fileID: 582565349}
+  m_Layer: 0
+  m_Name: UpgradeApplier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &582565349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582565348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ba0f7aa7055664b9ae4b20272cd2e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.UpgradeApplier
+  upgrades:
+  - {fileID: 11400000, guid: 56bb7eb625f74b0cb4009b83753d5566, type: 2}
+  - {fileID: 11400000, guid: 05672662b4f7434a844dd97bc8998767, type: 2}
+  - {fileID: 11400000, guid: 85253dc1e67341088def022b197b5ffc, type: 2}
+  - {fileID: 11400000, guid: d2169e7d2bbc46fa90112ece7f09aef9, type: 2}
+  - {fileID: 11400000, guid: 6435427077c44b599ad6e9b816f10e88, type: 2}
+  - {fileID: 11400000, guid: cb28ec0d206148cebf72d33cd3be96b4, type: 2}
+  logApplied: 1
+--- !u!4 &582565350
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582565348}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &583230495
 GameObject:
   m_ObjectHideFlags: 0
@@ -12070,6 +12122,60 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
+--- !u!1 &1905026083
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1905026085}
+  - component: {fileID: 1905026084}
+  m_Layer: 0
+  m_Name: PrestigeTracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1905026084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905026083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78e0899a2e677e548851aaf6d0489fb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.PrestigeTracker
+  waveRunner: {fileID: 1038327350}
+  perWave: 5
+  wavesPerAct: 8
+  perAct: 25
+  runCompleted: 50
+  townHallSurvived: 100
+  perBuilding: 10
+  perHouse: 15
+  returnToCastleDelay: 4
+  logRewards: 1
+--- !u!4 &1905026085
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905026083}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1908736718
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13858,3 +13964,5 @@ SceneRoots:
   - {fileID: 888853897}
   - {fileID: 520569722}
   - {fileID: 909798551}
+  - {fileID: 582565350}
+  - {fileID: 1905026085}

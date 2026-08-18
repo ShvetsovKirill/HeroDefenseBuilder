@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca101bd9ec2162b469c4a3392fe8e83f, type: 3}
+  m_Name: Upgrade_SquadHealth
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.UpgradeDefinition
+  id: squad.health
+  displayName: "Здоровье бойцов"
+  description: "+10 к запасу здоровья каждого бойца. База — 60."
+  icon: {fileID: 0}
+  target: 2
+  valuePerLevel: 10
+  maxLevel: 5
+  baseCost: 80
+  costStep: 15

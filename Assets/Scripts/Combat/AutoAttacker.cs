@@ -102,6 +102,20 @@ namespace HeroDefense.Combat
             range = Mathf.Max(0f, newRange);
         }
 
+        /// <summary>
+        /// Прибавить к урону. Зовёт UpgradeApplier при рождении бойца:
+        /// у бойцов, в отличие от короля, нет своего слоя статов —
+        /// числа лежат прямо на префабе, и прокачке некуда их положить,
+        /// кроме как в уже созданный компонент.
+        /// </summary>
+        public void AddDamage(float amount)
+        {
+            if (amount <= 0f)
+                return;
+
+            damage += amount;
+        }
+
         private Health _ownHealth;
         private HeroDefense.Visuals.ActorAnimator _animator;
 

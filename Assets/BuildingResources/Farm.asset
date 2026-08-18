@@ -21,3 +21,5 @@ MonoBehaviour:
   category: 1
   maxCount: 4
   allowBlueprints: 1
+  unlockedFromStart: 1
+  unlockCost: 120

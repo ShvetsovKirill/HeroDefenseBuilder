@@ -217,6 +217,10 @@ namespace HeroDefense.Squads
                 return;
             }
 
+            // Прокачка выдаётся здесь, а не в префабе: боец рождается
+            // в середине забега, когда раздавать бонусы уже некому.
+            HeroDefense.Meta.UpgradeApplier.ApplyToUnit(unit);
+
             _squad.AddUnit(unit);
         }
 

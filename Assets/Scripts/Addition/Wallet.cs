@@ -57,7 +57,12 @@ namespace HeroDefense.Economy
                 return;
 
             _initialized = true;
-            _gold = startingGold;
+
+            // Бонус прибавляется здесь, а не вызовом Add: Add поднял бы
+            // событие GoldChanged, а BattleStatsRecorder считает любой
+            // положительный сдвиг заработком — стартовое золото попало бы
+            // в «заработано» и испортило замер, который чинила партия 1.
+            _gold = startingGold + HeroDefense.Meta.UpgradeApplier.StartingGoldBonus;
         }
 
         private void Awake()
