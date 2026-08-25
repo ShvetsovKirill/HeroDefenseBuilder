@@ -3748,12 +3748,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.UpgradeApplier
   upgrades:
-  - {fileID: 11400000, guid: 56bb7eb625f74b0cb4009b83753d5566, type: 2}
   - {fileID: 11400000, guid: 05672662b4f7434a844dd97bc8998767, type: 2}
   - {fileID: 11400000, guid: 85253dc1e67341088def022b197b5ffc, type: 2}
-  - {fileID: 11400000, guid: d2169e7d2bbc46fa90112ece7f09aef9, type: 2}
   - {fileID: 11400000, guid: 6435427077c44b599ad6e9b816f10e88, type: 2}
+  - {fileID: 11400000, guid: d2169e7d2bbc46fa90112ece7f09aef9, type: 2}
   - {fileID: 11400000, guid: cb28ec0d206148cebf72d33cd3be96b4, type: 2}
+  - {fileID: 11400000, guid: 56bb7eb625f74b0cb4009b83753d5566, type: 2}
   logApplied: 1
 --- !u!4 &582565350
 Transform:
