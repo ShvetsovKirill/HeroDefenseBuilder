@@ -165,10 +165,17 @@ namespace HeroDefense.UI
 
         private void OnWaveChanged(int _) => UpdateWaveNumber();
 
+        /// <summary>
+        /// Номер волны для показа. До старта первой волны раннер держит ноль,
+        /// и без этого игрок на первых секундах читал бы «Волна 0 из 24».
+        /// </summary>
+        private int DisplayedWaveNumber =>
+            waveRunner != null ? Mathf.Max(1, waveRunner.CurrentWaveNumber) : 1;
+
         private void UpdateWaveNumber()
         {
             if (waveCountText != null && waveRunner != null)
-                waveCountText.text = $"Волна {waveRunner.CurrentWaveNumber}";
+                waveCountText.text = $"Волна {DisplayedWaveNumber}";
         }
 
         private void UpdateWaveLine()
@@ -178,7 +185,7 @@ namespace HeroDefense.UI
 
             nextWaveCountText.text = waveRunner.IsBreak
                 ? $"До следующей волны: {FormatTime(waveRunner.BreakTimeLeft)}"
-                : $"Волна {waveRunner.CurrentWaveNumber} из {waveRunner.TotalWaves}";
+                : $"Волна {DisplayedWaveNumber} из {waveRunner.TotalWaves}";
         }
 
         private static string FormatTime(float seconds)

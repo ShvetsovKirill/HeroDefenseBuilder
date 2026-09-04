@@ -85,8 +85,14 @@ namespace HeroDefense.App
 
         public void Load(GameScene scene)
         {
+            // Вторая загрузка поверх идущей ломает корутину, поэтому запрос
+            // отбрасывается. Молча это делать нельзя: снаружи выглядит как
+            // «кнопка не нажалась», и искать причину приходится вслепую.
             if (IsLoading)
+            {
+                Debug.LogWarning($"[Сцены] Запрос на {scene} отброшен: идёт другая загрузка.", this);
                 return;
+            }
 
             StartCoroutine(LoadRoutine(scene));
         }

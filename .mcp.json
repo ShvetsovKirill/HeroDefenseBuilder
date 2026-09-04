@@ -1,11 +1,11 @@
 {
   "mcpServers": {
     "unity-editor-mcp": {
-      "command": "C:\\Users\\my3dc\\AppData\\Local\\Unity\\bin\\unity.exe",
+      "command": "${HDB_UNITY_EXE:-unity}",
       "args": [
         "mcp",
         "--project-path",
-        "H:\\Projects\\HeroDefenseBuilder"
+        "${HDB_PROJECT_PATH:-C:\\Projects\\HeroDefenseBuilder}"
       ]
     }
   }
