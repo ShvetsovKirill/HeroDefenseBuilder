@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Upgrade_DeckSize
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.UpgradeDefinition
   id: deck.size
-  displayName: "Размер колоды"
-  description: "+1 карточка застройки в колоде. База — 12."
-  icon: {fileID: 0}
+  displayName: "\u0420\u0430\u0437\u043C\u0435\u0440 \u043A\u043E\u043B\u043E\u0434\u044B"
+  description: "+1 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0437\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438
+    \u0432 \u043A\u043E\u043B\u043E\u0434\u0435. \u0411\u0430\u0437\u0430 \u2014
+    12."
+  icon: {fileID: 21300000, guid: 392d8b8f1d750744d96fd4c7e406f77a, type: 3}
   target: 5
   valuePerLevel: 1
   maxLevel: 3

@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Upgrade_StartingGold
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.UpgradeDefinition
   id: gold.starting
-  displayName: "Стартовое золото"
-  description: "+30 золота в начале забега. База — 100."
-  icon: {fileID: 0}
+  displayName: "\u0421\u0442\u0430\u0440\u0442\u043E\u0432\u043E\u0435 \u0437\u043E\u043B\u043E\u0442\u043E"
+  description: "+30 \u0437\u043E\u043B\u043E\u0442\u0430 \u0432 \u043D\u0430\u0447\u0430\u043B\u0435
+    \u0437\u0430\u0431\u0435\u0433\u0430. \u0411\u0430\u0437\u0430 \u2014 100."
+  icon: {fileID: 21300000, guid: 16cb8c2c2e6a5b44b9090662523e1f94, type: 3}
   target: 4
   valuePerLevel: 30
   maxLevel: 4

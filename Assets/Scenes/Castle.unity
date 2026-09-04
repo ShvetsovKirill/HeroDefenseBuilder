@@ -205,6 +205,7 @@ GameObject:
   - component: {fileID: 124839401}
   - component: {fileID: 124839403}
   - component: {fileID: 124839402}
+  - component: {fileID: 124839404}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -330,6 +331,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 124839400}
   m_CullTransparentMesh: 1
+--- !u!114 &124839404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124839400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: castle.mainmenu
 --- !u!1 &185933206
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,6 +476,7 @@ GameObject:
   - component: {fileID: 206871185}
   - component: {fileID: 206871187}
   - component: {fileID: 206871186}
+  - component: {fileID: 206871188}
   m_Layer: 5
   m_Name: BarracksSectionLabel
   m_TagString: Untagged
@@ -587,6 +602,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 206871184}
   m_CullTransparentMesh: 1
+--- !u!114 &206871188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206871184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: castle.section.barracks
 --- !u!1 &268542943
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,6 +793,7 @@ GameObject:
   - component: {fileID: 360332376}
   - component: {fileID: 360332378}
   - component: {fileID: 360332377}
+  - component: {fileID: 360332379}
   m_Layer: 5
   m_Name: KingSectionLabel
   m_TagString: Untagged
@@ -890,6 +919,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 360332375}
   m_CullTransparentMesh: 1
+--- !u!114 &360332379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360332375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: castle.section.king
 --- !u!1 &399878103
 GameObject:
   m_ObjectHideFlags: 0
@@ -1757,6 +1799,7 @@ GameObject:
   - component: {fileID: 711925183}
   - component: {fileID: 711925185}
   - component: {fileID: 711925184}
+  - component: {fileID: 711925186}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -1882,6 +1925,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711925182}
   m_CullTransparentMesh: 1
+--- !u!114 &711925186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711925182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: castle.depart
 --- !u!1 &730903400
 GameObject:
   m_ObjectHideFlags: 0
@@ -1978,6 +2034,7 @@ GameObject:
   - component: {fileID: 756880965}
   - component: {fileID: 756880967}
   - component: {fileID: 756880966}
+  - component: {fileID: 756880968}
   m_Layer: 0
   m_Name: UpgradesTitle
   m_TagString: Untagged
@@ -2103,6 +2160,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 756880964}
   m_CullTransparentMesh: 1
+--- !u!114 &756880968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 756880964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: castle.upgrades.title
 --- !u!1 &1014723455
 GameObject:
   m_ObjectHideFlags: 0
@@ -2445,6 +2515,7 @@ GameObject:
   - component: {fileID: 1241043862}
   - component: {fileID: 1241043864}
   - component: {fileID: 1241043863}
+  - component: {fileID: 1241043865}
   m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -2570,6 +2641,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1241043861}
   m_CullTransparentMesh: 1
+--- !u!114 &1241043865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241043861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: result.close
 --- !u!1 &1298690823
 GameObject:
   m_ObjectHideFlags: 0
@@ -2702,6 +2786,7 @@ GameObject:
   - component: {fileID: 1303875816}
   - component: {fileID: 1303875818}
   - component: {fileID: 1303875817}
+  - component: {fileID: 1303875819}
   m_Layer: 5
   m_Name: TechSectionLabel
   m_TagString: Untagged
@@ -2827,6 +2912,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1303875815}
   m_CullTransparentMesh: 1
+--- !u!114 &1303875819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303875815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: castle.section.tech
 --- !u!1 &1469814535
 GameObject:
   m_ObjectHideFlags: 0

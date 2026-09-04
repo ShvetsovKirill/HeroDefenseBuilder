@@ -33,10 +33,6 @@ namespace HeroDefense.App.UI
         [Header("Кнопки")]
         [SerializeField] private Button closeButton;
 
-        [Header("Подписи")]
-        [SerializeField] private string victoryTitle = "Забег пройден";
-        [SerializeField] private string defeatTitle = "Ратуша пала";
-
         private void Awake()
         {
             if (panelRoot != null)
@@ -66,21 +62,22 @@ namespace HeroDefense.App.UI
             if (panelRoot != null)
                 panelRoot.SetActive(true);
 
+            // Подписи берутся из таблицы переводов, а не из полей в инспекторе:
+            // иначе при смене языка экран итогов остался бы на русском.
             if (titleText != null)
-                titleText.text = RunResult.Victory ? victoryTitle : defeatTitle;
+                titleText.text = Localization.Loc.Get(RunResult.Victory ? "result.victory" : "result.defeat");
 
             if (summaryText != null)
             {
-                summaryText.text = RunResult.Victory
-                    ? $"Пройдено волн: {RunResult.WaveReached}"
-                    : $"Остановлен на волне {RunResult.WaveReached}";
+                summaryText.text = Localization.Loc.Get(
+                    RunResult.Victory ? "result.waves" : "result.stopped", RunResult.WaveReached);
             }
 
             if (breakdownText != null)
                 breakdownText.text = BuildBreakdown();
 
             if (prestigeTotalText != null)
-                prestigeTotalText.text = $"Престиж: {PlayerProgress.Prestige}";
+                prestigeTotalText.text = Localization.Loc.Get("prestige.label", PlayerProgress.Prestige);
         }
 
         private static string BuildBreakdown()
@@ -91,7 +88,7 @@ namespace HeroDefense.App.UI
                 text.AppendLine(line);
 
             text.AppendLine();
-            text.AppendLine($"Всего за забег: +{RunResult.PrestigeEarned}");
+            text.AppendLine(Localization.Loc.Get("result.total", RunResult.PrestigeEarned));
 
             return text.ToString();
         }

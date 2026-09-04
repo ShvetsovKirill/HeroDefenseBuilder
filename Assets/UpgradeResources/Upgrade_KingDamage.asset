@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Upgrade_KingDamage
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Meta.UpgradeDefinition
   id: king.damage
-  displayName: "Урон короля"
-  description: "+2 к урону короля за уровень. База — 10."
-  icon: {fileID: 0}
+  displayName: "\u0423\u0440\u043E\u043D \u043A\u043E\u0440\u043E\u043B\u044F"
+  description: "+2 \u043A \u0443\u0440\u043E\u043D\u0443 \u043A\u043E\u0440\u043E\u043B\u044F
+    \u0437\u0430 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0411\u0430\u0437\u0430
+    \u2014 10."
+  icon: {fileID: 21300000, guid: ac9a2eefdaa0cf64c910a155ef10064b, type: 3}
   target: 0
   valuePerLevel: 2
   maxLevel: 5

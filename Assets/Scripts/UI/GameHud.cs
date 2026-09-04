@@ -175,7 +175,7 @@ namespace HeroDefense.UI
         private void UpdateWaveNumber()
         {
             if (waveCountText != null && waveRunner != null)
-                waveCountText.text = $"Волна {DisplayedWaveNumber}";
+                waveCountText.text = Localization.Loc.Get("hud.wave", DisplayedWaveNumber);
         }
 
         private void UpdateWaveLine()
@@ -184,8 +184,8 @@ namespace HeroDefense.UI
                 return;
 
             nextWaveCountText.text = waveRunner.IsBreak
-                ? $"До следующей волны: {FormatTime(waveRunner.BreakTimeLeft)}"
-                : $"Волна {DisplayedWaveNumber} из {waveRunner.TotalWaves}";
+                ? Localization.Loc.Get("hud.nextwave", FormatTime(waveRunner.BreakTimeLeft))
+                : Localization.Loc.Get("hud.waveof", DisplayedWaveNumber, waveRunner.TotalWaves);
         }
 
         private static string FormatTime(float seconds)

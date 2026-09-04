@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Building.BuildingDefinition
   displayName: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
   description: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: b3b1364fecc414345a2ac5c51fc877d1, type: 3}
   cost: 100
   prefab: {fileID: 4077878730501716829, guid: d7af0d5fcc30e5e4eb9ea96fb14fd199, type: 3}
   statLine: 

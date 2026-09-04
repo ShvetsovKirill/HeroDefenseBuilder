@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31db28c5f7207ce449eaae32423da640, type: 3}
+  m_Name: LocalizationTable
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizationTable
+  entries:
+  - key: menu.newgame
+    english: New Game
+    russian: "\u041D\u043E\u0432\u0430\u044F \u0438\u0433\u0440\u0430"
+  - key: menu.settings
+    english: Settings
+    russian: "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"
+  - key: menu.exit
+    english: Exit
+    russian: "\u0412\u044B\u0445\u043E\u0434"
+  - key: settings.title
+    english: Settings
+    russian: "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"
+  - key: settings.language
+    english: Language
+    russian: "\u042F\u0437\u044B\u043A"
+  - key: settings.back
+    english: Back
+    russian: "\u041D\u0430\u0437\u0430\u0434"
+  - key: castle.section.king
+    english: Castle
+    russian: "\u0417\u0430\u043C\u043E\u043A"
+  - key: castle.section.barracks
+    english: Barracks
+    russian: "\u041A\u0430\u0437\u0430\u0440\u043C\u044B"
+  - key: castle.section.tech
+    english: Technologies
+    russian: "\u0422\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438"
+  - key: castle.depart
+    english: March Out
+    russian: "\u0412 \u043F\u043E\u0445\u043E\u0434"
+  - key: castle.mainmenu
+    english: Main Menu
+    russian: "\u0413\u043B\u0430\u0432\u043D\u043E\u0435 \u043C\u0435\u043D\u044E"
+  - key: castle.upgrades.title
+    english: Upgrades
+    russian: "\u0423\u043B\u0443\u0447\u0448\u0435\u043D\u0438\u044F"
+  - key: result.victory
+    english: Run Complete
+    russian: "\u0417\u0430\u0431\u0435\u0433 \u043F\u0440\u043E\u0439\u0434\u0435\u043D"
+  - key: result.defeat
+    english: The Town Hall Has Fallen
+    russian: "\u0420\u0430\u0442\u0443\u0448\u0430 \u043F\u0430\u043B\u0430"
+  - key: result.close
+    english: To the Castle
+    russian: "\u0412 \u0437\u0430\u043C\u043E\u043A"
+  - key: result.waves
+    english: 'Waves cleared: {0}'
+    russian: "\u041F\u0440\u043E\u0439\u0434\u0435\u043D\u043E \u0432\u043E\u043B\u043D:
+      {0}"
+  - key: result.stopped
+    english: Stopped at wave {0}
+    russian: "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u043D\u0430
+      \u0432\u043E\u043B\u043D\u0435 {0}"
+  - key: result.total
+    english: 'Run total: +{0}'
+    russian: "\u0412\u0441\u0435\u0433\u043E \u0437\u0430 \u0437\u0430\u0431\u0435\u0433:
+      +{0}"
+  - key: battle.defeat
+    english: The Town Hall Has Fallen
+    russian: "\u0420\u0430\u0442\u0443\u0448\u0430 \u043F\u0430\u043B\u0430"
+  - key: battle.victory
+    english: Run Complete
+    russian: "\u0417\u0430\u0431\u0435\u0433 \u043F\u0440\u043E\u0439\u0434\u0435\u043D"
+  - key: hud.wave
+    english: Wave {0}
+    russian: "\u0412\u043E\u043B\u043D\u0430 {0}"
+  - key: hud.waveof
+    english: Wave {0} of {1}
+    russian: "\u0412\u043E\u043B\u043D\u0430 {0} \u0438\u0437 {1}"
+  - key: hud.nextwave
+    english: 'Next wave: {0}'
+    russian: "\u0414\u043E \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u0439
+      \u0432\u043E\u043B\u043D\u044B: {0}"
+  - key: prestige.label
+    english: 'Prestige: {0}'
+    russian: "\u041F\u0440\u0435\u0441\u0442\u0438\u0436: {0}"
+  - key: lang.english
+    english: English
+    russian: English
+  - key: lang.russian
+    english: "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"
+    russian: "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"

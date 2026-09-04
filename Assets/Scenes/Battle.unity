@@ -2595,7 +2595,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4356c96d82d26d44c97d9389d0668abb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 75fc226e156c7d448a3bd6e7e77cd9b2, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3132,6 +3132,7 @@ GameObject:
   - component: {fileID: 529305425}
   - component: {fileID: 529305427}
   - component: {fileID: 529305426}
+  - component: {fileID: 529305428}
   m_Layer: 5
   m_Name: GameOverText
   m_TagString: Untagged
@@ -3257,6 +3258,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 529305424}
   m_CullTransparentMesh: 1
+--- !u!114 &529305428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529305424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: battle.defeat
 --- !u!1001 &539824463
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7664,6 +7678,7 @@ GameObject:
   - component: {fileID: 1293123946}
   - component: {fileID: 1293123948}
   - component: {fileID: 1293123947}
+  - component: {fileID: 1293123949}
   m_Layer: 5
   m_Name: VictoryText
   m_TagString: Untagged
@@ -7789,6 +7804,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1293123945}
   m_CullTransparentMesh: 1
+--- !u!114 &1293123949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293123945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aba8892497b67b74489994e463fbe1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Localization.LocalizedText
+  key: battle.victory
 --- !u!4 &1294197327 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 276482422356441904, guid: 1764d393f3c0e9645b37cda8db01c7ab, type: 3}
@@ -8915,7 +8943,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1458832147}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -9235,7 +9263,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1540063761}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -9634,7 +9662,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1578688166}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -10475,7 +10503,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1703937280}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -10600,9 +10628,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4356c96d82d26d44c97d9389d0668abb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7b79e9481a0463d42b622c87cf4b998b, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -12568,7 +12596,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0d0df9a4f4544ec4c83146523298223e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 16cb8c2c2e6a5b44b9090662523e1f94, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
