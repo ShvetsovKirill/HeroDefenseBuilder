@@ -216,7 +216,7 @@ namespace HeroDefense.UI
             var component = king.GetComponent<King.King>();
 
             if (component != null && component.Definition != null)
-                kingNameText.text = component.Definition.displayName;
+                kingNameText.text = component.Definition.DisplayName;
         }
 
         // ---------- Тревога ----------

@@ -1,22 +1,37 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using HeroDefense.Audio;
 using HeroDefense.Localization;
 
 namespace HeroDefense.App.UI
 {
     /// <summary>
-    /// Раздел настроек. Пока в нём один пункт — язык.
+    /// Раздел настроек: язык и громкость.
     ///
     /// Раньше панель была пустой рамкой без кнопки возврата: игрок,
     /// открывший настройки, застревал в них насовсем. Кнопка «назад»
     /// здесь важнее самих настроек.
+    ///
+    /// Ползунки необязательны: пока их нет в вёрстке, экран работает
+    /// как раньше, а звук играет на полной громкости.
     /// </summary>
     public sealed class SettingsView : MonoBehaviour
     {
         [Header("Кнопки языка")]
         [SerializeField] private Button englishButton;
         [SerializeField] private Button russianButton;
+
+        [Header("Громкость")]
+        [Tooltip("Общая громкость. Необязательно: без ползунка звук играет как есть.")]
+        [SerializeField] private Slider masterSlider;
+
+        [Tooltip("Громкость музыки. Отдельно от эффектов: её выключают " +
+                 "гораздо чаще, чем звуки боя.")]
+        [SerializeField] private Slider musicSlider;
+
+        [Tooltip("Громкость звуковых эффектов.")]
+        [SerializeField] private Slider sfxSlider;
 
         [Header("Возврат")]
         [Tooltip("Закрывает настройки. Обязательна: без неё из раздела нет выхода.")]
@@ -38,12 +53,50 @@ namespace HeroDefense.App.UI
             Bind(englishButton, () => Choose(Language.English));
             Bind(russianButton, () => Choose(Language.Russian));
             Bind(backButton, Close);
+
+            BindVolume(masterSlider, value => AudioOptions.Master = value);
+            BindVolume(musicSlider, value => AudioOptions.Music = value);
+            BindVolume(sfxSlider, value => AudioOptions.Sfx = value);
+        }
+
+        /// <summary>
+        /// Подписать ползунок на канал громкости.
+        ///
+        /// Диапазон и целочисленность выставляются кодом, а не в инспекторе:
+        /// ползунок со Whole Numbers даёт две ступени громкости вместо
+        /// плавной регулировки, и заметить это на глаз в инспекторе трудно.
+        /// </summary>
+        private static void BindVolume(Slider slider, UnityEngine.Events.UnityAction<float> apply)
+        {
+            if (slider == null)
+                return;
+
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.wholeNumbers = false;
+
+            slider.onValueChanged.RemoveAllListeners();
+            slider.onValueChanged.AddListener(apply);
         }
 
         private void OnEnable()
         {
             Loc.LanguageChanged += OnLanguageChanged;
             Highlight();
+            ShowVolumes();
+        }
+
+        /// <summary>
+        /// Показать сохранённые громкости. Обязательно без вызова обработчиков:
+        /// SetValueWithoutNotify не дёргает onValueChanged, иначе открытие
+        /// экрана записывало бы значения обратно и на пустых настройках
+        /// сбрасывало бы их в ноль.
+        /// </summary>
+        private void ShowVolumes()
+        {
+            masterSlider?.SetValueWithoutNotify(AudioOptions.Master);
+            musicSlider?.SetValueWithoutNotify(AudioOptions.Music);
+            sfxSlider?.SetValueWithoutNotify(AudioOptions.Sfx);
         }
 
         private void OnDisable()

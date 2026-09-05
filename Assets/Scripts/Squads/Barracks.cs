@@ -189,6 +189,11 @@ namespace HeroDefense.Squads
             for (int i = 0; i < needed; i++)
                 SpawnUnit();
 
+            // Звук только на непустую партию: шкала докручивается и при полном
+            // отряде, и без проверки казарма щёлкала бы вхолостую.
+            if (needed > 0)
+                Audio.Sfx.PlayAt(Audio.SoundId.SquadReinforced, SpawnPosition);
+
             ResetProgress();
         }
 

@@ -398,7 +398,12 @@ namespace HeroDefense.Enemies
             if (enemy == null)
                 return null;
 
-            enemy.Initialize(definition, definition.maxHealth, definition.moveSpeed, position);
+            // Условие волны множит характеристики при рождении, а не правит
+            // ассет: дефиниция должна остаться той же для всех карт (D48).
+            float health = definition.maxHealth * HeroDefense.Waves.WaveModifiers.EnemyHealth;
+            float speed = definition.moveSpeed * HeroDefense.Waves.WaveModifiers.EnemySpeed;
+
+            enemy.Initialize(definition, health, speed, position);
             enemy.Died += OnEnemyDied;
 
             _alive.Add(enemy);

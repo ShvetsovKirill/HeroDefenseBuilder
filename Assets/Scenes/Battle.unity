@@ -7116,6 +7116,7 @@ MonoBehaviour:
   muzzle: {fileID: 0}
   shotLine: {fileID: 1839816481}
   shotLineDuration: 0.05
+  attackSound: 0
 --- !u!114 &1189418475
 MonoBehaviour:
   m_ObjectHideFlags: 0

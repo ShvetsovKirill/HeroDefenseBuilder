@@ -69,6 +69,11 @@ namespace HeroDefense.Combat
 
         [SerializeField] private float shotLineDuration = 0.05f;
 
+        [Header("Звук")]
+        [Tooltip("Звук удара или выстрела. Задаётся здесь, а не в общем списке: " +
+                 "меч, лук и башня бьют по-разному, и это свойство оружия.")]
+        [SerializeField] private HeroDefense.Audio.SoundId attackSound = HeroDefense.Audio.SoundId.None;
+
         private Enemy _target;
 
         /// <summary>
@@ -227,6 +232,8 @@ namespace HeroDefense.Combat
             // замах должен быть виден.
             if (_animator != null)
                 _animator.PlayAttack();
+
+            HeroDefense.Audio.Sfx.PlayAt(attackSound, MuzzlePosition);
 
             // Источник передаём, только если этот стрелок должен провоцировать
             // ответ: башни и король бьют «безнаказанно» осознанно.

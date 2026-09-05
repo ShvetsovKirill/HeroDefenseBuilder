@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroDefense.Localization;
 
 namespace HeroDefense.Squads
 {
@@ -13,7 +14,11 @@ namespace HeroDefense.Squads
     public sealed class BarracksDefinition : ScriptableObject
     {
         [Header("Описание")]
+        [Tooltip("Название на случай, если ключ перевода не проставлен.")]
         public string displayName = "Казарма";
+
+        [Tooltip("Ключ названия в таблице переводов. Пусто — покажется текст выше.")]
+        public string nameKey;
 
         [Header("Отряд")]
         [Tooltip("Префаб бойца с компонентами SquadUnit, Health и AutoAttacker.")]
@@ -41,5 +46,10 @@ namespace HeroDefense.Squads
         [Header("Флаг")]
         [Tooltip("Цвет знамени этого отряда. Единственный способ отличить отряды на карте.")]
         public Color flagColor = Color.blue;
+
+        // ---------- Тексты для игрока ----------
+
+        /// <summary>Название для игрока: перевод по ключу, иначе текст из ассета.</summary>
+        public string DisplayName => Loc.GetOrFallback(nameKey, displayName);
     }
 }

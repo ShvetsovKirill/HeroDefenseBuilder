@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroDefense.Localization;
 
 namespace HeroDefense.Meta
 {
@@ -76,6 +77,14 @@ namespace HeroDefense.Meta
         [Tooltip("Иконка карточки. Пусто — карточка покажется без картинки, это не ошибка.")]
         [SerializeField] private Sprite icon;
 
+        [Header("Перевод")]
+        [Tooltip("Ключ заголовка в таблице переводов, например upgrade.king.damage.name. " +
+                 "Пусто — покажется текст из поля выше.")]
+        [SerializeField] private string nameKey;
+
+        [Tooltip("Ключ описания. Пусто — покажется текст из поля описания.")]
+        [SerializeField] private string descriptionKey;
+
         // ---------- Что улучшает ----------
 
         [Header("Что улучшает")]
@@ -104,11 +113,11 @@ namespace HeroDefense.Meta
         /// <summary>Ключ сохранения этой ветки.</summary>
         public string Id => id;
 
-        /// <summary>Заголовок карточки для экрана замка.</summary>
-        public string DisplayName => displayName;
+        /// <summary>Заголовок карточки для экрана замка: перевод по ключу, иначе текст из ассета.</summary>
+        public string DisplayName => Loc.GetOrFallback(nameKey, displayName);
 
         /// <summary>Описание эффекта для экрана замка.</summary>
-        public string Description => description;
+        public string Description => Loc.GetOrFallback(descriptionKey, description);
 
         /// <summary>Иконка карточки, может быть пустой.</summary>
         public Sprite Icon => icon;

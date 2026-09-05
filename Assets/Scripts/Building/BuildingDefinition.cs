@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroDefense.Localization;
 
 namespace HeroDefense.Building
 {
@@ -13,12 +14,24 @@ namespace HeroDefense.Building
     public sealed class BuildingDefinition : ScriptableObject
     {
         [Header("Описание")]
+        [Tooltip("Название на случай, если ключ перевода не проставлен. " +
+                 "Служит и подписью ассета в списках редактора.")]
         public string displayName = "Башня";
 
         [TextArea(2, 4)]
         [Tooltip("Короткая подсказка на карточке: чем эта постройка полезна.")]
         public string description;
 
+        [Header("Перевод")]
+        [Tooltip("Ключ названия в таблице переводов, например building.tower.name.\n\n" +
+                 "Пусто — покажется текст из поля выше. Так недопереведённая " +
+                 "постройка остаётся читаемой, а не превращается в голый ключ.")]
+        public string nameKey;
+
+        [Tooltip("Ключ описания. Пусто — покажется текст из поля описания.")]
+        public string descriptionKey;
+
+        [Header("Вид")]
         [Tooltip("Иконка для карточки в панели строительства.")]
         public Sprite icon;
 
@@ -66,6 +79,14 @@ namespace HeroDefense.Building
                  "начинался бы с восстановления колоды, и престиж стал бы " +
                  "оброком вместо прогресса.")]
         public int unlockCost = 120;
+
+        // ---------- Тексты для игрока ----------
+
+        /// <summary>Название для игрока: перевод по ключу, иначе текст из ассета.</summary>
+        public string DisplayName => Loc.GetOrFallback(nameKey, displayName);
+
+        /// <summary>Описание для игрока. Может быть пустым — это не ошибка.</summary>
+        public string Description => Loc.GetOrFallback(descriptionKey, description);
     }
 
     public enum BuildingCategory

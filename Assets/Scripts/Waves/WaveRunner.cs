@@ -160,7 +160,11 @@ namespace HeroDefense.Waves
 
                 CurrentWaveNumber = i + 1;
 
-                _currentWaveTotal = wave.TotalEnemies;
+                // Счётчик волны считает по факту, с учётом условия: иначе
+                // полоска прогресса дошла бы до конца на середине боя.
+                _currentWaveTotal = Mathf.Max(1,
+                    Mathf.RoundToInt(wave.TotalEnemies * WaveModifiers.EnemyCount));
+
                 _currentWaveKilled = 0;
 
                 WaveStarted?.Invoke(CurrentWaveNumber);
@@ -171,6 +175,10 @@ namespace HeroDefense.Waves
                     yield return WaitUntilCleared();
 
                 WaveCleared?.Invoke(CurrentWaveNumber);
+
+                // Условие живёт ровно одну волну: снимаем сразу после неё,
+                // чтобы выбор на пятой не действовал молча на двадцатой.
+                WaveModifiers.Clear();
 
                 yield return RunBreak(wave.breakAfter);
             }
@@ -197,19 +205,24 @@ namespace HeroDefense.Waves
         {
             yield return Wait(group.startDelay);
 
+            // Условие волны множит количество и плотность поверх группы.
+            // Сама группа не меняется: собранные уровни остаются рабочими.
+            int total = Mathf.Max(1, Mathf.RoundToInt(group.count * WaveModifiers.EnemyCount));
+            float interval = group.interval * WaveModifiers.SpawnInterval;
+
             int spawned = 0;
 
-            while (spawned < group.count)
+            while (spawned < total)
             {
-                int burst = Mathf.Min(group.burstSize, group.count - spawned);
+                int burst = Mathf.Min(group.burstSize, total - spawned);
 
                 for (int i = 0; i < burst; i++)
                     SpawnOne(group);
 
                 spawned += burst;
 
-                if (spawned < group.count)
-                    yield return Wait(group.interval);
+                if (spawned < total)
+                    yield return Wait(interval);
             }
         }
 

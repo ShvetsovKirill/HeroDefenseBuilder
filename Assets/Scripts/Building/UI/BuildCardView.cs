@@ -57,7 +57,7 @@ namespace HeroDefense.Building.UI
             }
 
             if (nameText != null)
-                nameText.text = definition.displayName;
+                nameText.text = definition.DisplayName;
 
             if (costText != null)
                 costText.text = definition.cost.ToString();

@@ -149,6 +149,8 @@ namespace HeroDefense.Squads
         {
             Died?.Invoke(this);
 
+            Audio.Sfx.PlayAt(Audio.SoundId.UnitDeath, transform.position);
+
             // Отключаем расталкивание и поиск целей сразу, а объект убираем
             // с задержкой: иначе тело толкало бы живых и мешало строю.
             enabled = false;

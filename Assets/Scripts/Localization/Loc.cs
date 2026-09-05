@@ -100,6 +100,27 @@ namespace HeroDefense.Localization
             }
         }
 
+        /// <summary>
+        /// Перевод по ключу, а если ключа нет — готовая строка из ассета.
+        ///
+        /// Нужен контенту (D48): у построек, улучшений и королей названия
+        /// лежат прямо в дефинициях. Пока ключ не проставлен, показывается
+        /// старый текст — иначе перевод пришлось бы включать разом для всех
+        /// ассетов, и любой пропущенный превращал бы карточку в «building.tower».
+        /// </summary>
+        public static string GetOrFallback(string key, string fallback)
+        {
+            if (string.IsNullOrEmpty(key))
+                return fallback;
+
+            EnsureLoaded();
+
+            if (_table != null && Entries.TryGetValue(key, out LocalizationTable.Entry entry))
+                return _table.Resolve(entry, _language);
+
+            return string.IsNullOrEmpty(fallback) ? key : fallback;
+        }
+
         /// <summary>Есть ли такой ключ. Для редакторских проверок.</summary>
         public static bool HasKey(string key)
         {

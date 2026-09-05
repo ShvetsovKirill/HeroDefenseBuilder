@@ -163,6 +163,8 @@ namespace HeroDefense.Squads
             barracks.Squad.SetFlag(position);
             MoveMarker(barracks, position);
 
+            Audio.Sfx.PlayAt(Audio.SoundId.FlagPlanted, position);
+
             // Флаг воткнут — король едет дальше налегке.
             Deselect();
         }

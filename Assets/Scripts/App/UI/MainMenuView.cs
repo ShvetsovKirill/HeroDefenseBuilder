@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
+using HeroDefense.UI;
 
 namespace HeroDefense.App.UI
 {
     /// <summary>
-    /// Главное меню: Новая игра / Настройки / Выход.
+    /// Главное меню: Новая игра / Управление / Настройки / Выход.
     ///
     /// Кнопки не знают, куда ведут — они зовут методы этого класса,
     /// а он обращается к загрузчику. Так переходы остаются в одном месте.
@@ -13,6 +14,11 @@ namespace HeroDefense.App.UI
     {
         [Header("Кнопки")]
         [SerializeField] private Button newGameButton;
+
+        [Tooltip("Открывает окно с клавишами. Необязательна, но без неё игрок " +
+                 "узнаёт управление только начав бой — а там уже поздно.")]
+        [SerializeField] private Button controlsButton;
+
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button quitButton;
 
@@ -22,9 +28,16 @@ namespace HeroDefense.App.UI
 
         [SerializeField] private GameObject settingsPanel;
 
+        /// <summary>
+        /// Блок кнопок. Нужен логотипу: он встаёт над ним и прячется вместе
+        /// с ним, когда открыты настройки.
+        /// </summary>
+        public GameObject ButtonsRoot => rootPanel;
+
         private void Awake()
         {
             Bind(newGameButton, OnNewGame);
+            Bind(controlsButton, OpenControls);
             Bind(settingsButton, OpenSettings);
             Bind(quitButton, OnQuit);
 
@@ -48,6 +61,12 @@ namespace HeroDefense.App.UI
             // продолжить сохранённый забег или начать новый.
             SceneLoader.Instance?.GoToCastle();
         }
+
+        /// <summary>
+        /// Показать клавиши. Окно собирается кодом и не требует вёрстки:
+        /// список управления должен меняться в одном месте, а не в макете.
+        /// </summary>
+        public void OpenControls() => ControlsScreen.Show();
 
         public void OpenSettings() => ShowSettings(true);
 

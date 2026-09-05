@@ -5,7 +5,7 @@
       "args": [
         "mcp",
         "--project-path",
-        "${HDB_PROJECT_PATH:-C:\\Projects\\HeroDefenseBuilder}"
+        "${HDB_PROJECT_PATH:-H:\\Projects\\HeroDefenseBuilder}"
       ]
     }
   }

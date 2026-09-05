@@ -204,11 +204,19 @@ namespace HeroDefense.Building
         /// <summary>Вызывается карточкой в панели.</summary>
         public bool TryBuild(BuildingDefinition definition)
         {
+            // Отказ озвучиваем здесь, а не в карточке: причин отказа две,
+            // а «ничего не произошло» после клика выглядит как поломка.
             if (!CanBuild(definition, out _))
+            {
+                Audio.Sfx.Play(Audio.SoundId.BuildRejected);
                 return false;
+            }
 
             if (!Purse.TrySpend(definition.cost))
+            {
+                Audio.Sfx.Play(Audio.SoundId.BuildRejected);
                 return false;
+            }
 
             GameObject placed = _focusedSlot.Place(definition);
 

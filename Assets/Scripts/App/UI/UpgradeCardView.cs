@@ -38,8 +38,8 @@ namespace HeroDefense.App.UI
         [Tooltip("Цвет цены, когда не хватает престижа.")]
         [SerializeField] private Color unaffordableCostColor = new Color(0.9f, 0.35f, 0.35f);
 
-        [Tooltip("Подпись вместо цены, когда ветка выкачана до потолка.")]
-        [SerializeField] private string maxedLabel = "макс";
+        [Tooltip("Ключ подписи вместо цены, когда ветка выкачана до потолка.")]
+        [SerializeField] private string maxedLabelKey = "upgrade.maxed";
 
         private Color _defaultCostColor;
         private UpgradeDefinition _definition;
@@ -128,7 +128,7 @@ namespace HeroDefense.App.UI
 
             if (maxed)
             {
-                costText.text = maxedLabel;
+                costText.text = Localization.Loc.GetOrFallback(maxedLabelKey, "макс");
                 costText.color = _defaultCostColor;
                 return;
             }
@@ -147,7 +147,10 @@ namespace HeroDefense.App.UI
             // Списание и повышение уровня живут в ассете одним методом,
             // чтобы экран не мог сделать половину операции.
             if (_definition.TryBuy())
+            {
+                HeroDefense.Audio.Sfx.Play(HeroDefense.Audio.SoundId.UpgradePurchased);
                 _owner?.RefreshAll();
+            }
         }
     }
 }

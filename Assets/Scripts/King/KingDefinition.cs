@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroDefense.Localization;
 
 namespace HeroDefense.King
 {
@@ -15,10 +16,18 @@ namespace HeroDefense.King
     public sealed class KingDefinition : ScriptableObject
     {
         [Header("Личность")]
+        [Tooltip("Имя на случай, если ключ перевода не проставлен.")]
         public string displayName = "Король Эрик";
 
         [TextArea(2, 4)]
         public string description;
+
+        [Tooltip("Ключ имени в таблице переводов, например king.eric.name. " +
+                 "Пусто — покажется текст из поля выше.")]
+        public string nameKey;
+
+        [Tooltip("Ключ описания. Пусто — покажется текст из поля описания.")]
+        public string descriptionKey;
 
         public Sprite portrait;
 
@@ -59,5 +68,13 @@ namespace HeroDefense.King
 
         [Tooltip("Скорость полёта духом. Обычно как у живого или чуть выше.")]
         public float spiritMoveSpeed = 7f;
+
+        // ---------- Тексты для игрока ----------
+
+        /// <summary>Имя для игрока: перевод по ключу, иначе текст из ассета.</summary>
+        public string DisplayName => Loc.GetOrFallback(nameKey, displayName);
+
+        /// <summary>Описание короля. Может быть пустым — это не ошибка.</summary>
+        public string Description => Loc.GetOrFallback(descriptionKey, description);
     }
 }

@@ -63,7 +63,13 @@ namespace HeroDefense.Core
             if (keyboard == null || State == null)
                 return;
 
-            if (keyboard.escapeKey.wasPressedThisFrame && !State.IsFinished)
+            // Две клавиши на паузу, а не одна: Escape перехватывают
+            // оверлеи Steam и полноэкранный режим, и нажатие до игры
+            // не доходит. P свободна и работает всегда.
+            bool pausePressed = keyboard.escapeKey.wasPressedThisFrame
+                                || keyboard.pKey.wasPressedThisFrame;
+
+            if (pausePressed && !State.IsFinished)
                 State.TogglePause();
 
             if (allowQuickRestart && State.IsFinished && keyboard.enterKey.wasPressedThisFrame)

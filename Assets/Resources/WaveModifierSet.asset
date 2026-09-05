@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6408bf19ec024a44e8664735e76f8749, type: 3}
+  m_Name: WaveModifierSet
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Waves.WaveModifierSet
+  modifiers:
+  - {fileID: 11400000, guid: d7ae753bdc9b7e54491c1e2225717fc5, type: 2}
+  - {fileID: 11400000, guid: fa9ca59ecdeabec4e816bafa4ff9abdc, type: 2}
+  - {fileID: 11400000, guid: 34ed9f6c923299b45a7c9ae19b37bd60, type: 2}
+  - {fileID: 11400000, guid: 05dc8891cec0c3b4eae3a5c1b41e9f3e, type: 2}
+  - {fileID: 11400000, guid: ba7db2bf683f7ca4cb0da85458e5390a, type: 2}
+  - {fileID: 11400000, guid: b3ce782b75b104248901f23c8b78aff4, type: 2}
+  choicesPerWave: 3
+  firstWave: 3
+  everyWave: 1
+  wavePeriod: 3

@@ -90,6 +90,10 @@ namespace HeroDefense.Economy
                 ? enemy.Definition.goldReward
                 : fallbackGoldPerKill;
 
+            // Плата за риск: тяжёлое условие волны обязано окупаться,
+            // иначе его никто не возьмёт и выбор станет декоративным.
+            reward = Mathf.RoundToInt(reward * HeroDefense.Waves.WaveModifiers.GoldReward);
+
             Add(reward);
         }
 

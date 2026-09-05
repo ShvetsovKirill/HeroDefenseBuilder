@@ -1,7 +1,9 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using HeroDefense.Localization;
 
 namespace HeroDefense.App.UI
 {
@@ -26,6 +28,11 @@ namespace HeroDefense.App.UI
         [Tooltip("Всплывающая подпись. Показывается при наведении.")]
         [SerializeField] private GameObject label;
 
+        [Tooltip("Подставлять ли в подпись название раздела из таблицы переводов. " +
+                 "Ключ строится сам: castle.<sectionId>. Выключено — подпись " +
+                 "остаётся такой, как набрана в сцене.")]
+        [SerializeField] private bool localizeLabel = true;
+
         [Header("Доступность")]
         [Tooltip("Выключено — здание видно, но не кликается. " +
                  "Для разделов, которые ещё не открыты.")]
@@ -47,6 +54,38 @@ namespace HeroDefense.App.UI
 
             SetHighlight(false);
             ApplyAvailability();
+            RefreshLabel();
+        }
+
+        private void OnEnable()
+        {
+            Loc.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnDisable()
+        {
+            Loc.LanguageChanged -= OnLanguageChanged;
+        }
+
+        private void OnLanguageChanged(Language language) => RefreshLabel();
+
+        /// <summary>
+        /// Название раздела в подпись здания.
+        ///
+        /// Ключ строится из sectionId, а не задаётся отдельным полем:
+        /// у здания уже есть опознание, и второе поле рядом с ним неминуемо
+        /// разъедется с первым. Нет ключа в таблице — остаётся набранный
+        /// в сцене текст, поэтому включать это безопасно.
+        /// </summary>
+        private void RefreshLabel()
+        {
+            if (!localizeLabel || label == null || string.IsNullOrEmpty(sectionId))
+                return;
+
+            TMP_Text text = label.GetComponentInChildren<TMP_Text>(true);
+
+            if (text != null)
+                text.text = Loc.GetOrFallback($"castle.{sectionId}", text.text);
         }
 
         public void SetAvailable(bool value)
