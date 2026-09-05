@@ -7,6 +7,10 @@
         "--project-path",
         "${HDB_PROJECT_PATH:-H:\\Projects\\HeroDefenseBuilder}"
       ]
+    },
+    "blender": {
+      "command": "C:/Users/my3dc/.local/bin/blender-mcp.exe",
+      "args": []
     }
   }
 }
