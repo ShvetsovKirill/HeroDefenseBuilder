@@ -260,7 +260,7 @@ namespace HeroDefense.UI
 
             var background = host.AddComponent<Image>();
 
-            RuntimeUi.ApplyPanelLook(background, RuntimeUi.Skin != null ? RuntimeUi.Skin.panel : null);
+            RuntimeUi.ApplyCardLook(background);
 
             var button = host.AddComponent<Button>();
 

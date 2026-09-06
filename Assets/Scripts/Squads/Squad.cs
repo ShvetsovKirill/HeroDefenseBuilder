@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using HeroDefense.Enemies;
@@ -93,6 +93,15 @@ namespace HeroDefense.Squads
         private float _priorityUntil;
         private bool _formationShifted;
 
+        /// <summary>Куда строй развёрнут сейчас. Нужен, чтобы заметить смену стороны.</summary>
+        private Vector3 _shiftedTowards;
+
+        /// <summary>
+        /// На сколько градусов должна уехать угроза, чтобы пересобирать строй.
+        /// Меньше — бойцы дрожат, больше — отряд дерётся спиной к врагу.
+        /// </summary>
+        private const float ReorientAngle = 30f;
+
         public int MaxUnits => maxUnits;
         public int AliveCount => _units.Count;
         public bool IsFull => _units.Count >= maxUnits;
@@ -109,18 +118,18 @@ namespace HeroDefense.Squads
         public bool IsAlerted => _alertTimer > 0f && HasAlertDelayPassed;
 
         /// <summary>
+        /// Тревога при уроне по своей постройке. Отдельный метод от RaiseAlert
+        /// только ради читаемости вызова — поведение одинаковое.
+        /// </summary>
+        public void RaiseAlertOnBuildingDamage() => RaiseAlert();
+
+        /// <summary>
         /// Поднять тревогу извне. Вызывается, когда бойца атакуют:
         /// ждать, пока рядом наберётся достаточно врагов, — значит стоять
         /// и умирать, пока порог не набрался.
         ///
         /// Здесь задержки нет: по нам уже бьют, подтягиваться поздно.
         /// </summary>
-        /// <summary>
-        /// Тревога при уроне по своей постройке. Отдельный метод от RaiseAlert
-        /// только ради читаемости вызова — поведение одинаковое.
-        /// </summary>
-        public void RaiseAlertOnBuildingDamage() => RaiseAlert();
-
         public void RaiseAlert()
         {
             _alertTimer = alertHoldTime;
@@ -310,10 +319,29 @@ namespace HeroDefense.Squads
         {
             bool shouldShift = IsAlerted && _threatDirection.sqrMagnitude > 0.01f;
 
-            if (shouldShift == _formationShifted)
+            if (shouldShift != _formationShifted)
+            {
+                _formationShifted = shouldShift;
+                _shiftedTowards = _threatDirection;
+
+                AssignFormationPositions();
+                return;
+            }
+
+            // Угроза сменила сторону — строй разворачивается следом.
+            // Раньше сравнивался только факт «сдвинуты или нет», и отряд,
+            // уже поднятый по тревоге, оставался лицом к тем, кто пришёл
+            // первым, даже когда обходили с фланга.
+            //
+            // Порог по углу обязателен: пересчёт на каждое мелкое смещение
+            // цели заставлял бы бойцов дрожать на месте.
+            if (!shouldShift)
                 return;
 
-            _formationShifted = shouldShift;
+            if (Vector3.Angle(_shiftedTowards, _threatDirection) < ReorientAngle)
+                return;
+
+            _shiftedTowards = _threatDirection;
             AssignFormationPositions();
         }
 
@@ -355,6 +383,7 @@ namespace HeroDefense.Squads
             _alertTimer = 0f;
             _alertStartedAt = -1f;
             _threatDirection = Vector3.zero;
+            _shiftedTowards = Vector3.zero;
             _formationShifted = false;
             _priorityUntil = 0f;
         }
@@ -442,12 +471,6 @@ namespace HeroDefense.Squads
 
         // ---------- Построение ----------
 
-        /// <summary>
-        /// Расставляем бойцов по кольцу вокруг флага.
-        ///
-        /// Если дать всем одну точку, они будут толкаться в ней.
-        /// Кольцо решает это без физики и даёт узнаваемый силуэт отряда.
-        /// </summary>
         /// <summary>
         /// Прямоугольный строй, развёрнутый к угрозе.
         ///

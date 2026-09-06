@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57ce332640ab82643a20328959e4d15d, type: 3}
+  m_Name: Level_Short
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Waves.LevelDefinition
+  displayName: Level_Short
+  waves:
+  - {fileID: 11400000, guid: c6e9b6e1c0de1d94980d75a8fa17e621, type: 2}
+  - {fileID: 11400000, guid: 993f5da0b73c11f42a8a6ddad8405991, type: 2}
+  - {fileID: 11400000, guid: b4a3a4ae3bc137349a2326842dbd1c98, type: 2}
+  - {fileID: 11400000, guid: 84ebe420782d65a45886399d0ac83691, type: 2}
+  - {fileID: 11400000, guid: 11ce5421d8656c1419da0813a0d60613, type: 2}
+  startDelay: 12
+  startingGold: 100

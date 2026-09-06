@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using HeroDefense.Core;
@@ -49,6 +49,17 @@ namespace HeroDefense.Enemies
 
         [Tooltip("Слой построек. Ограничивает проверку, чтобы не ловить землю и врагов.")]
         [SerializeField] private LayerMask buildingLayer = ~0;
+
+        [Header("Осмотр")]
+        [Tooltip("Как часто враг смотрит, что у него вокруг: цели рядом " +
+                 "и постройка по курсу.\n\n" +
+                 "Это два физических запроса, и раньше они шли каждый кадр " +
+                 "на каждом идущем враге — при пятидесяти врагах сотня " +
+                 "запросов за кадр. За 0.15 секунды враг проходит меньше " +
+                 "полуметра при радиусе обнаружения в два с половиной, " +
+                 "поэтому мимо цели он не проскочит.\n\n" +
+                 "Больше — дешевле, но заметнее задержка реакции.")]
+        [SerializeField] private float lookInterval = 0.15f;
 
         [Header("Расталкивание")]
         [Tooltip("Радиус личного пространства. Ближе этого враги отталкивают друг друга. " +
@@ -227,15 +238,27 @@ namespace HeroDefense.Enemies
 
         private void MoveTowardsTarget(Enemy enemy, Vector3 separation, float deltaTime)
         {
+            // Осматриваемся не каждый кадр: оба запроса ниже идут в физику,
+            // и на толпе это была самая дорогая строка в проекте. Дистанция
+            // до главной цели считается по-прежнему каждый кадр — она стоит
+            // одно вычитание.
+            bool lookAround = Time.time >= enemy.NextLookAt;
+
+            if (lookAround)
+                enemy.NextLookAt = Time.time + lookInterval;
+
             // Сначала смотрим, не оказалось ли что-то рядом: постройка
             // или боец отряда. Проверка вокруг врага, а не строго по курсу —
             // иначе он проходил бы вплотную мимо башни, не заметив её.
-            Health nearby = FindTargetNearby(enemy);
-
-            if (nearby != null)
+            if (lookAround)
             {
-                BeginSiege(enemy, nearby);
-                return;
+                Health nearby = FindTargetNearby(enemy);
+
+                if (nearby != null)
+                {
+                    BeginSiege(enemy, nearby);
+                    return;
+                }
             }
 
             if (mainTarget == null)
@@ -258,12 +281,15 @@ namespace HeroDefense.Enemies
 
             // Постройка прямо по курсу — ломаем её, а не обходим (D41).
             // Обход появится вместе с flow field (D85).
-            Health obstacle = FindBlockingBuilding(enemy, direction);
-
-            if (obstacle != null)
+            if (lookAround)
             {
-                BeginSiege(enemy, obstacle);
-                return;
+                Health obstacle = FindBlockingBuilding(enemy, direction);
+
+                if (obstacle != null)
+                {
+                    BeginSiege(enemy, obstacle);
+                    return;
+                }
             }
 
             if (direction.sqrMagnitude > 0.0001f)
@@ -404,6 +430,12 @@ namespace HeroDefense.Enemies
             float speed = definition.moveSpeed * HeroDefense.Waves.WaveModifiers.EnemySpeed;
 
             enemy.Initialize(definition, health, speed, position);
+
+            // Сдвиг фазы: без него вся волна осматривается в один и тот же
+            // кадр, и вместо ровной нагрузки получаются всплески каждые
+            // lookInterval — то есть та же сотня запросов, только пачкой.
+            enemy.NextLookAt = Time.time + UnityEngine.Random.Range(0f, lookInterval);
+
             enemy.Died += OnEnemyDied;
 
             _alive.Add(enemy);

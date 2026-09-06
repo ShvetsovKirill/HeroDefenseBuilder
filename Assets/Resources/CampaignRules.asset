@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a49de4c06ac17c4a981910fea70218e, type: 3}
+  m_Name: CampaignRules
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Campaign.CampaignRules
+  startingSquads: 2
+  startingSquadSize: 6
+  maxSquads: 9
+  maxSquadSize: 12
+  startingDeck:
+  - {fileID: 11400000, guid: 55e327609f7be1f44a4f430dc866dbdf, type: 2}
+  - {fileID: 11400000, guid: 3d7ade81f8827cc49b2b86e8900f8d3e, type: 2}
+  - {fileID: 11400000, guid: f202387dda9e0be49b1b70dc605d7f1b, type: 2}
+  map: {fileID: 11400000, guid: 246b023bb22207e4293d6ffe4196055c, type: 2}
+  commanderPool:
+  - {fileID: 11400000, guid: 20a622d6f1df2d74e80c2f42f883c77b, type: 2}
+  - {fileID: 11400000, guid: b2f70d9bdd98d864e93740f0d1c121db, type: 2}
+  - {fileID: 11400000, guid: cd4d4a3fdae5e3c4ab4647e53813304f, type: 2}
+  - {fileID: 11400000, guid: bfd025093c60f5241a9cc194b0ec27c1, type: 2}

@@ -64,7 +64,7 @@ namespace HeroDefense.UI
             RuntimeUi.CreateFill("Overlay", root, RuntimeUi.OverlayColor);
 
             RectTransform panel = RuntimeUi.CreatePanel(
-                root, 800f, new RectOffset(48, 48, 40, 40), 20f);
+                root, 760f, new RectOffset(56, 56, 44, 44), 18f);
 
             RuntimeUi.CreateText(panel, Loc.GetOrFallback("controls.title", "Управление"),
                                  52f, RuntimeUi.AccentColor, TextAlignmentOptions.Center);

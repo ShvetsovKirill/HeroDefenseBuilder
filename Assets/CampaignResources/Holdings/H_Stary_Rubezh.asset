@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2420822da7883a94fafd48ff9b2aa592, type: 3}
+  m_Name: H_Stary_Rubezh
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Campaign.HoldingDefinition
+  displayName: "\u0421\u0442\u0430\u0440\u044B\u0439 \u0440\u0443\u0431\u0435\u0436"
+  nameKey: 
+  description: 
+  descriptionKey: 
+  icon: {fileID: 21300000, guid: 5de111691b799ba4ea2c6a25a6aaac4c, type: 3}
+  kind: 3
+  centerpiecePrefab: {fileID: 0}
+  level: {fileID: 11400000, guid: e17cb9e27420e9140b9b6f6488852836, type: 2}
+  faction: 5
+  rewards:
+  - kind: 0
+    prestige: 60
+    buildingCard: {fileID: 0}
+    boonId: 
+  - kind: 1
+    prestige: 20
+    buildingCard: {fileID: 0}
+    boonId: 

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using HeroDefense.Core;
 using HeroDefense.Economy;
 
@@ -28,10 +28,19 @@ namespace HeroDefense.Squads
         [SerializeField] private Transform rallyPoint;
 
         private Health _health;
+
+        /// <summary>Запись отряда из армии похода. Null вне кампании.</summary>
+        private Campaign.SquadRecord _record;
+
+        /// <summary>Командир ещё не вышел: следующий боец будет им.</summary>
+        private bool _commanderPending;
         private Squad _squad;
 
         private float _buildProgress;
         private bool _batchPaid;
+
+        /// <summary>За скольких бойцов уплачено в текущей партии.</summary>
+        private int _paidUnits;
 
         /// <summary>Отряд этой постройки. Через него ставится флаг.</summary>
         public Squad Squad => _squad;
@@ -98,17 +107,42 @@ namespace HeroDefense.Squads
 
         private void CreateSquad()
         {
-            var squadObject = new GameObject($"Squad_{definition?.displayName ?? name}");
+            // В походе казарма — место для готового отряда: выходит тот,
+            // что уцелел в прошлом владении, со своим командиром. Вне
+            // похода всё как было: безымянное ополчение по числам ассета.
+            _record = Campaign.CampaignArmy.TakeNext();
+
+            string squadName = _record != null
+                ? Campaign.CampaignArmy.DescribeSquad(_record)
+                : $"Squad_{definition?.displayName ?? name}";
+
+            var squadObject = new GameObject(squadName);
             squadObject.transform.SetParent(transform, false);
 
             _squad = squadObject.AddComponent<Squad>();
             _squad.Wiped += OnSquadWiped;
             _squad.UnitLost += OnUnitLost;
 
-            if (definition != null)
-                _squad.SetMaxUnits(definition.squadSize);
+            int size = _record != null
+                ? _record.size
+                : definition != null ? definition.squadSize : 6;
 
+            // Командир идёт сверх штата: отряд из шести человек и командир —
+            // это семеро, а не пятеро и командир.
+            if (_record != null && _record.HasCommander)
+            {
+                size++;
+                _commanderPending = true;
+            }
+
+            _squad.SetMaxUnits(size);
             _squad.ClearFlag(RallyPosition);
+
+            // Командир приходит сразу и даром: он не рекрут, которого
+            // набирают за деньги, а человек, который уже служит королю.
+            // Ждать его по шкале пополнения было бы странно.
+            if (_commanderPending)
+                SpawnUnit();
         }
 
         private void OnUnitLost(Squad squad)
@@ -122,6 +156,46 @@ namespace HeroDefense.Squads
             // Отряд выбит полностью — сборка начнётся с нуля,
             // флаг игрок поставит заново (D21b).
             ResetProgress();
+
+            // Отряд выбит — значит и командир погиб вместе с ним,
+            // второй раз он уже не выйдет.
+            _commanderPending = false;
+
+            if (_record == null)
+                return;
+
+            // Командир полёг вместе со всеми: отряд теряет имя
+            // и специализацию, а его судьбу игрок решит в лагере.
+            // Люди наберутся заново за золото, командир — нет.
+            if (_record.HasCommander)
+            {
+                Debug.Log($"[Кампания] Отряд {_record.slot} выбит, командир погиб.");
+                _record.LoseCommander();
+            }
+
+            // Метка значит «людей нет СЕЙЧАС», а не «когда-то выбили»:
+            // пока казарма стоит, отряд наберётся заново за золото
+            // и метка снимется. Снесли казарму — снимать её станет некому,
+            // и отряд потерян насовсем (D46).
+            //
+            // Без этой записи армия в сохранении оставалась полной, отряды
+            // выходили в следующем владении как ни в чём не бывало,
+            // а поход нельзя было проиграть вообще.
+            MarkArmyRecord(true);
+        }
+
+        /// <summary>
+        /// Отметить в армии похода, есть ли у отряда люди. Пишем только
+        /// на смене значения: сохранение уходит на диск, и дёргать его
+        /// на каждого новобранца незачем.
+        /// </summary>
+        private void MarkArmyRecord(bool wipedOut)
+        {
+            if (_record == null || _record.wipedOut == wipedOut)
+                return;
+
+            _record.wipedOut = wipedOut;
+            Campaign.CampaignRun.Save();
         }
 
         private void Update()
@@ -179,12 +253,20 @@ namespace HeroDefense.Squads
             IsWaitingForGold = false;
             _batchPaid = true;
 
+            // Запоминаем, за сколько человек заплачено. Пересчитать это число
+            // при выходе нельзя: пока крутится шкала, отряд теряет ещё бойцов,
+            // свободных мест становится больше — и партия вышла бы крупнее
+            // оплаченной, то есть частично даром (D21a).
+            _paidUnits = needed;
+
             return true;
         }
 
         private void ReleaseBatch()
         {
-            int needed = Mathf.Min(definition.unitsPerBatch, _squad.MaxUnits - _squad.AliveCount);
+            // Не больше оплаченного и не больше, чем есть мест: погибшие
+            // во время шкалы восполняются следующей партией, за деньги.
+            int needed = Mathf.Min(_paidUnits, _squad.MaxUnits - _squad.AliveCount);
 
             for (int i = 0; i < needed; i++)
                 SpawnUnit();
@@ -201,6 +283,7 @@ namespace HeroDefense.Squads
         {
             _buildProgress = 0f;
             _batchPaid = false;
+            _paidUnits = 0;
         }
 
         private void SpawnUnit()
@@ -226,7 +309,26 @@ namespace HeroDefense.Squads
             // в середине забега, когда раздавать бонусы уже некому.
             HeroDefense.Meta.UpgradeApplier.ApplyToUnit(unit);
 
+            // Командир добавляет своё поверх общей прокачки: улучшения
+            // из лагеря достаются всем, а он — только своему отряду.
+            Campaign.CampaignArmy.ApplyCommander(unit, _record);
+
+            // Первым из казармы выходит сам командир: он живучее своих
+            // и виден по венцу. Дальше идут рядовые.
+            //
+            // Флаг сбрасывается навсегда: второй раз командир не выйдет
+            // ни по шкале пополнения, ни после гибели отряда.
+            if (_commanderPending)
+            {
+                _commanderPending = false;
+                Campaign.CampaignArmy.MakeCommanderUnit(unit, _record);
+            }
+
             _squad.AddUnit(unit);
+
+            // Отряд снова с людьми: если он был выбит и отмечен потерянным,
+            // метку снимаем — за него заплатили заново.
+            MarkArmyRecord(false);
         }
 
         // ---------- Разрушение ----------

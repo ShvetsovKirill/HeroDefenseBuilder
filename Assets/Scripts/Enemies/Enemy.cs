@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using HeroDefense.Core;
 
@@ -47,6 +47,17 @@ namespace HeroDefense.Enemies
 
         /// <summary>Что враг сейчас бьёт. Null, пока идёт.</summary>
         public Health AttackTarget { get; private set; }
+
+        /// <summary>
+        /// Когда врагу следующий раз смотреть, что у него вокруг.
+        /// Владеет этим EnemyManager: осмотр стоит два физических запроса,
+        /// и делать его каждый кадр на каждом враге незачем.
+        ///
+        /// Поле живёт здесь, а не списком в менеджере, потому что список
+        /// живых переставляется при смерти (последний переезжает на место
+        /// убитого) — параллельный массив разъехался бы с ним.
+        /// </summary>
+        public float NextLookAt { get; set; }
 
         /// <summary>
         /// Из какого ассета сделан этот враг.

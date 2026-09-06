@@ -201,6 +201,41 @@ namespace HeroDefense.Meta
             }
         }
 
+        /// <summary>
+        /// Восстановить колоду из сохранения похода.
+        ///
+        /// Нужна потому, что колода не переживает выход из игры, а поход
+        /// переживает: без восстановления игрок, вернувшийся к сохранённой
+        /// кампании, оказался бы в бою без единой карточки.
+        ///
+        /// Лимит здесь не проверяется: колода уже была собрана по правилам,
+        /// а урезать её задним числом из-за смены улучшений — значит
+        /// отнимать у игрока то, что он уже выбрал.
+        /// </summary>
+        public static void Restore(IEnumerable<BuildingDefinition> cards)
+        {
+            Clear();
+
+            if (cards == null)
+                return;
+
+            foreach (BuildingDefinition definition in cards)
+            {
+                if (definition == null)
+                    continue;
+
+                DeckEntry entry = Find(definition);
+
+                if (entry == null)
+                {
+                    entry = new DeckEntry { definition = definition, count = 0 };
+                    Deck.Add(entry);
+                }
+
+                entry.count++;
+            }
+        }
+
         private static DeckEntry Find(BuildingDefinition definition)
         {
             if (definition == null)

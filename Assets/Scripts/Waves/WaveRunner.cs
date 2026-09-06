@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -81,6 +81,10 @@ namespace HeroDefense.Waves
 
         private Coroutine _routine;
 
+        // Корутины групп текущей волны. Список переиспользуется:
+        // волна за волной аллокация была бы напрасной.
+        private readonly List<Coroutine> _groupRoutines = new();
+
         private void Start()
         {
             if (autoStart)
@@ -104,6 +108,24 @@ namespace HeroDefense.Waves
             _currentWaveKilled++;
         }
 
+        /// <summary>
+        /// Подменить уровень до старта. Нужно кампании: какое владение
+        /// играется, решает карта, а не поле в инспекторе боевой сцены.
+        ///
+        /// После старта менять нельзя — волны уже идут, и подмена дала бы
+        /// половину одного уровня и половину другого.
+        /// </summary>
+        public void SetLevel(LevelDefinition newLevel)
+        {
+            if (_routine != null)
+            {
+                Debug.LogWarning("[WaveRunner] Уровень нельзя менять на ходу.", this);
+                return;
+            }
+
+            level = newLevel;
+        }
+
         public void StartLevel()
         {
             if (!IsSetupValid())
@@ -118,8 +140,25 @@ namespace HeroDefense.Waves
             if (_routine != null)
                 StopCoroutine(_routine);
 
+            // Группы волны — самостоятельные корутины, и остановка корневой
+            // их не трогает: они продолжали бы лить врагов после Stop,
+            // а повторный StartLevel дал бы две волны одновременно.
+            StopGroups();
+
             _routine = null;
             IsBreak = false;
+        }
+
+        /// <summary>Погасить корутины групп текущей волны.</summary>
+        private void StopGroups()
+        {
+            for (int i = 0; i < _groupRoutines.Count; i++)
+            {
+                if (_groupRoutines[i] != null)
+                    StopCoroutine(_groupRoutines[i]);
+            }
+
+            _groupRoutines.Clear();
         }
 
         private bool IsSetupValid()
@@ -189,16 +228,18 @@ namespace HeroDefense.Waves
         /// <summary>Все группы волны запускаются параллельно, каждая со своей задержкой.</summary>
         private IEnumerator RunWave(WaveDefinition wave)
         {
-            var running = new List<Coroutine>();
+            _groupRoutines.Clear();
 
             foreach (SpawnGroup group in wave.groups)
             {
                 if (group != null && group.enemy != null)
-                    running.Add(StartCoroutine(RunGroup(group)));
+                    _groupRoutines.Add(StartCoroutine(RunGroup(group)));
             }
 
-            foreach (Coroutine routine in running)
-                yield return routine;
+            for (int i = 0; i < _groupRoutines.Count; i++)
+                yield return _groupRoutines[i];
+
+            _groupRoutines.Clear();
         }
 
         private IEnumerator RunGroup(SpawnGroup group)
