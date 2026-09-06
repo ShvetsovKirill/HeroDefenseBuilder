@@ -104,6 +104,24 @@ namespace HeroDefense.Waves
             _currentWaveKilled++;
         }
 
+        /// <summary>
+        /// Подменить уровень до старта. Нужно кампании: какое владение
+        /// играется, решает карта, а не поле в инспекторе боевой сцены.
+        ///
+        /// После старта менять нельзя — волны уже идут, и подмена дала бы
+        /// половину одного уровня и половину другого.
+        /// </summary>
+        public void SetLevel(LevelDefinition newLevel)
+        {
+            if (_routine != null)
+            {
+                Debug.LogWarning("[WaveRunner] Уровень нельзя менять на ходу.", this);
+                return;
+            }
+
+            level = newLevel;
+        }
+
         public void StartLevel()
         {
             if (!IsSetupValid())

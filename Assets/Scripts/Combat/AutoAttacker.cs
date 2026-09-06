@@ -95,6 +95,9 @@ namespace HeroDefense.Combat
         /// <summary>Дальность — нужна снаружи, например для отрисовки радиуса башни.</summary>
         public float Range => range;
 
+        /// <summary>Текущий урон за удар, уже с учётом всех прибавок.</summary>
+        public float Damage => damage;
+
         /// <summary>
         /// Задать параметры извне. Используется KingCombatBinder:
         /// у короля числа живут в KingStats, потому что их меняет прокачка.

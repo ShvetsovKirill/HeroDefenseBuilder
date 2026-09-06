@@ -115,7 +115,7 @@ namespace HeroDefense.UI
             RuntimeUi.CreateFill("Overlay", _root.transform, RuntimeUi.OverlayColor);
 
             RectTransform panel = RuntimeUi.CreatePanel(
-                _root.transform, 760f, new RectOffset(48, 48, 40, 40), 18f);
+                _root.transform, 720f, new RectOffset(56, 56, 44, 44), 16f);
 
             RuntimeUi.CreateText(panel, Loc.GetOrFallback("pause.title", "Пауза"),
                                  56f, RuntimeUi.AccentColor, TextAlignmentOptions.Center);

@@ -23,7 +23,10 @@ namespace HeroDefense.App
         Castle,
 
         /// <summary>Собственно бой.</summary>
-        Battle
+        Battle,
+
+        /// <summary>Карта кампании: выбор следующего владения.</summary>
+        Map
     }
 
     /// <summary>
@@ -44,6 +47,7 @@ namespace HeroDefense.App
         [SerializeField] private string mainMenuScene = "MainMenu";
         [SerializeField] private string castleScene = "Castle";
         [SerializeField] private string battleScene = "Battle";
+        [SerializeField] private string mapScene = "Map";
 
         [Header("Переход")]
         [Tooltip("Минимальная длительность перехода. Без неё загрузка лёгкой " +
@@ -145,6 +149,7 @@ namespace HeroDefense.App
                 GameScene.MainMenu => mainMenuScene,
                 GameScene.Castle => castleScene,
                 GameScene.Battle => battleScene,
+                GameScene.Map => mapScene,
                 _ => mainMenuScene
             };
         }
@@ -154,5 +159,6 @@ namespace HeroDefense.App
         public void GoToMainMenu() => Load(GameScene.MainMenu);
         public void GoToCastle() => Load(GameScene.Castle);
         public void GoToBattle() => Load(GameScene.Battle);
+        public void GoToMap() => Load(GameScene.Map);
     }
 }

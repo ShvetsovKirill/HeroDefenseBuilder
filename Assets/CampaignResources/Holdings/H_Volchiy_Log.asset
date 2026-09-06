@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2420822da7883a94fafd48ff9b2aa592, type: 3}
+  m_Name: H_Volchiy_Log
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDefense.Campaign.HoldingDefinition
+  displayName: "\u0412\u043E\u043B\u0447\u0438\u0439 \u043B\u043E\u0433"
+  nameKey: 
+  description: 
+  descriptionKey: 
+  icon: {fileID: 21300000, guid: c812847812e7449419a706780e236f37, type: 3}
+  kind: 0
+  centerpiecePrefab: {fileID: 0}
+  level: {fileID: 11400000, guid: 2f9596fa7ce3cde4eaf6deedb2a241e1, type: 2}
+  faction: 1
+  rewards:
+  - kind: 0
+    prestige: 25
+    buildingCard: {fileID: 0}
+    boonId: 

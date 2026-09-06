@@ -28,11 +28,20 @@ namespace HeroDefense.UI
         /// <summary>Фон панели.</summary>
         public static readonly Color PanelColor = new(0.10f, 0.09f, 0.11f, 0.96f);
 
+        /// <summary>Фон карточки внутри панели: чуть светлее, чтобы отделяться.</summary>
+        public static readonly Color CardColor = new(0.17f, 0.15f, 0.18f, 1f);
+
         /// <summary>Основной текст: тёплый светлый, как в остальных экранах.</summary>
         public static readonly Color TextColor = new(0.95f, 0.89f, 0.78f);
 
         /// <summary>Акцент: золото заголовков и выбранного.</summary>
         public static readonly Color AccentColor = new(0.79f, 0.64f, 0.15f);
+
+        /// <summary>
+        /// Во сколько раз ужимать нарисованную рамку. Больше единицы —
+        /// тоньше рамка при том же спрайте.
+        /// </summary>
+        private const float FrameScale = 2.2f;
 
         /// <summary>Имя ассета оформления внутри Resources. Без расширения.</summary>
         private const string SkinPath = "UiSkin";
@@ -162,10 +171,29 @@ namespace HeroDefense.UI
                 image.sprite = sprite;
                 image.type = Image.Type.Sliced;
                 image.color = Skin != null ? Skin.panelTint : Color.white;
+
+                // Рамка нарисована крупно — в исходнике её угол под сотню
+                // пикселей. Без уменьшения она съедает пол-панели, а на
+                // карточке углы налезают друг на друга.
+                image.pixelsPerUnitMultiplier = FrameScale;
                 return;
             }
 
             image.color = PanelColor;
+        }
+
+        /// <summary>
+        /// Вид карточки внутри панели: плоская подложка без рамки.
+        ///
+        /// Резная рамка с самоцветами хороша на большом окне и невозможна
+        /// на карточке 300×260: её углы занимают всю площадь и лезут
+        /// на текст. Мелкому элементу нужен фон, а не оправа.
+        /// </summary>
+        public static void ApplyCardLook(Image image)
+        {
+            image.sprite = null;
+            image.type = Image.Type.Simple;
+            image.color = CardColor;
         }
 
         /// <summary>
@@ -357,6 +385,7 @@ namespace HeroDefense.UI
                 image.sprite = Skin.button;
                 image.type = Image.Type.Sliced;
                 image.color = Skin.buttonTint;
+                image.pixelsPerUnitMultiplier = FrameScale;
             }
             else
             {

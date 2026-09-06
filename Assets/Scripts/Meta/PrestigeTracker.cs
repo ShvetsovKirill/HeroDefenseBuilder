@@ -153,6 +153,13 @@ namespace HeroDefense.Meta
         {
             yield return new WaitForSecondsRealtime(returnToCastleDelay);
 
+            // В походе игрока ведёт кампания: она знает, вернуться ли
+            // на карту за следующим владением или в лагерь подводить итоги.
+            // Иначе оба возврата спорят, и один из них молча отбрасывается
+            // загрузчиком как «идёт другая загрузка».
+            if (Campaign.CampaignRun.IsActive)
+                yield break;
+
             App.SceneLoader.Instance?.GoToCastle();
         }
 

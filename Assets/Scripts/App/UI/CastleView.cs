@@ -56,6 +56,10 @@ namespace HeroDefense.App.UI
 
             if (backdrop != null)
                 backdrop.onClick.AddListener(CloseAllSections);
+
+            // Поход кончился — игрока вернули сюда, и первое, что он должен
+            // увидеть, это его итог, а не молча опустевшую кнопку «В поход».
+            Campaign.UI.CampaignResultScreen.ShowIfFinished();
         }
 
         private void OnDestroy()
@@ -79,6 +83,15 @@ namespace HeroDefense.App.UI
 
         private void OpenSection(string id)
         {
+            // Казармы в лагере — это войско: кому дать командира и что
+            // делать с осиротевшим отрядом. Экран собирается кодом,
+            // поэтому панель в сцене для него не нужна.
+            if (id == "barracks" && Campaign.CampaignRules.Current != null)
+            {
+                Campaign.UI.ArmyScreen.Show();
+                return;
+            }
+
             bool found = false;
 
             for (int i = 0; i < sections.Length; i++)
@@ -112,11 +125,29 @@ namespace HeroDefense.App.UI
 
         // ---------- Переходы ----------
 
+        /// <summary>
+        /// Выйти в поход.
+        ///
+        /// Из лагеря игрок уходит не в бой, а на карту: куда именно идти,
+        /// он решает там. Начатая кампания продолжается с того места,
+        /// где остановилась, — заново её не создаём, иначе трёхчасовой
+        /// поход обнулялся бы визитом в лагерь.
+        /// </summary>
         private void Depart()
         {
-            // Позже здесь появится проверка: выбран ли король,
-            // взят ли хотя бы один отряд.
-            SceneLoader.Instance?.GoToBattle();
+            if (!Campaign.CampaignRun.IsActive)
+                Campaign.CampaignFlow.BeginCampaign();
+
+            // Колода собирается один раз на поход. Спрашиваем только когда
+            // её нет: возвращение на карту посреди кампании не должно
+            // каждый раз упираться в экран сборки.
+            if (!Campaign.CampaignRun.State.HasDeck)
+            {
+                Campaign.UI.DeckScreen.Show(() => SceneLoader.Instance?.GoToMap());
+                return;
+            }
+
+            SceneLoader.Instance?.GoToMap();
         }
 
         private void BackToMenu()

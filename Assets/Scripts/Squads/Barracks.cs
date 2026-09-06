@@ -28,6 +28,12 @@ namespace HeroDefense.Squads
         [SerializeField] private Transform rallyPoint;
 
         private Health _health;
+
+        /// <summary>Запись отряда из армии похода. Null вне кампании.</summary>
+        private Campaign.SquadRecord _record;
+
+        /// <summary>Командир ещё не вышел: следующий боец будет им.</summary>
+        private bool _commanderPending;
         private Squad _squad;
 
         private float _buildProgress;
@@ -98,17 +104,42 @@ namespace HeroDefense.Squads
 
         private void CreateSquad()
         {
-            var squadObject = new GameObject($"Squad_{definition?.displayName ?? name}");
+            // В походе казарма — место для готового отряда: выходит тот,
+            // что уцелел в прошлом владении, со своим командиром. Вне
+            // похода всё как было: безымянное ополчение по числам ассета.
+            _record = Campaign.CampaignArmy.TakeNext();
+
+            string squadName = _record != null
+                ? Campaign.CampaignArmy.DescribeSquad(_record)
+                : $"Squad_{definition?.displayName ?? name}";
+
+            var squadObject = new GameObject(squadName);
             squadObject.transform.SetParent(transform, false);
 
             _squad = squadObject.AddComponent<Squad>();
             _squad.Wiped += OnSquadWiped;
             _squad.UnitLost += OnUnitLost;
 
-            if (definition != null)
-                _squad.SetMaxUnits(definition.squadSize);
+            int size = _record != null
+                ? _record.size
+                : definition != null ? definition.squadSize : 6;
 
+            // Командир идёт сверх штата: отряд из шести человек и командир —
+            // это семеро, а не пятеро и командир.
+            if (_record != null && _record.HasCommander)
+            {
+                size++;
+                _commanderPending = true;
+            }
+
+            _squad.SetMaxUnits(size);
             _squad.ClearFlag(RallyPosition);
+
+            // Командир приходит сразу и даром: он не рекрут, которого
+            // набирают за деньги, а человек, который уже служит королю.
+            // Ждать его по шкале пополнения было бы странно.
+            if (_commanderPending)
+                SpawnUnit();
         }
 
         private void OnUnitLost(Squad squad)
@@ -122,6 +153,21 @@ namespace HeroDefense.Squads
             // Отряд выбит полностью — сборка начнётся с нуля,
             // флаг игрок поставит заново (D21b).
             ResetProgress();
+
+            // Отряд выбит — значит и командир погиб вместе с ним,
+            // второй раз он уже не выйдет.
+            _commanderPending = false;
+
+            // Командир полёг вместе со всеми: отряд теряет имя
+            // и специализацию, а его судьбу игрок решит в лагере.
+            // Люди наберутся заново за золото, командир — нет.
+            if (_record != null && _record.HasCommander)
+            {
+                Debug.Log($"[Кампания] Отряд {_record.slot} выбит, командир погиб.");
+
+                _record.LoseCommander();
+                Campaign.CampaignRun.Save();
+            }
         }
 
         private void Update()
@@ -225,6 +271,21 @@ namespace HeroDefense.Squads
             // Прокачка выдаётся здесь, а не в префабе: боец рождается
             // в середине забега, когда раздавать бонусы уже некому.
             HeroDefense.Meta.UpgradeApplier.ApplyToUnit(unit);
+
+            // Командир добавляет своё поверх общей прокачки: улучшения
+            // из лагеря достаются всем, а он — только своему отряду.
+            Campaign.CampaignArmy.ApplyCommander(unit, _record);
+
+            // Первым из казармы выходит сам командир: он живучее своих
+            // и виден по венцу. Дальше идут рядовые.
+            //
+            // Флаг сбрасывается навсегда: второй раз командир не выйдет
+            // ни по шкале пополнения, ни после гибели отряда.
+            if (_commanderPending)
+            {
+                _commanderPending = false;
+                Campaign.CampaignArmy.MakeCommanderUnit(unit, _record);
+            }
 
             _squad.AddUnit(unit);
         }
