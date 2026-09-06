@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using HeroDefense.App;
 using HeroDefense.Meta;
@@ -18,6 +18,9 @@ namespace HeroDefense.Campaign
     /// </summary>
     public static class CampaignFlow
     {
+        // Буфер только для внутренних проверок. Наружу он не отдаётся:
+        // общий список, розданный вызывающим, затирался бы вложенным
+        // вызовом прямо во время их перебора.
         private static readonly List<int> NextBuffer = new();
 
         /// <summary>Карта текущей кампании. Null, если правила не заведены.</summary>
@@ -52,7 +55,7 @@ namespace HeroDefense.Campaign
             CampaignRun.IsActive
             && Map != null
             && Map.finalBattle != null
-            && GetAvailableNodes().Count == 0;
+            && CountAvailableNodes() == 0;
 
         // ---------- Начало ----------
 
@@ -77,14 +80,17 @@ namespace HeroDefense.Campaign
         /// из текущего узла. Назад дороги нет: свернул на развилке —
         /// вторая ветка потеряна.
         /// </summary>
-        public static IReadOnlyList<int> GetAvailableNodes()
+        public static void FillAvailableNodes(List<int> results)
         {
-            NextBuffer.Clear();
+            if (results == null)
+                return;
+
+            results.Clear();
 
             CampaignMapDefinition map = Map;
 
             if (map == null)
-                return NextBuffer;
+                return;
 
             CampaignState state = CampaignRun.State;
 
@@ -93,15 +99,21 @@ namespace HeroDefense.Campaign
                 foreach (int entry in map.entryNodes)
                 {
                     if (map.GetNode(entry) != null)
-                        NextBuffer.Add(entry);
+                        results.Add(entry);
                 }
 
-                return NextBuffer;
+                return;
             }
 
-            map.GetNextNodes(state.currentNode, NextBuffer);
+            map.GetNextNodes(state.currentNode, results);
+        }
 
-            return NextBuffer;
+        /// <summary>Сколько дорог ведёт вперёд. Ноль — путь кончился.</summary>
+        public static int CountAvailableNodes()
+        {
+            FillAvailableNodes(NextBuffer);
+
+            return NextBuffer.Count;
         }
 
         // ---------- Владение ----------

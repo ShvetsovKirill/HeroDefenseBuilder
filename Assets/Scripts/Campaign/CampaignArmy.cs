@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using HeroDefense.Combat;
 using HeroDefense.Core;
 using HeroDefense.Squads;
@@ -50,7 +50,13 @@ namespace HeroDefense.Campaign
                 return null;
 
             CampaignState state = CampaignRun.State;
+            SquadRecord next = null;
 
+            // Ищем наименьший слот из ещё не выданных, а не первую подходящую
+            // запись по порядку списка: новый отряд встаёт в конец, но занимает
+            // первый свободный слот, и после потери среднего порядок в списке
+            // перестаёт совпадать с порядком слотов. Перебор подряд тогда
+            // проскакивал бы отряд, и часть армии не выходила бы в бой вовсе.
             foreach (SquadRecord squad in state.squads)
             {
                 if (squad == null || squad.wipedOut)
@@ -59,12 +65,14 @@ namespace HeroDefense.Campaign
                 if (squad.slot <= _handedOut)
                     continue;
 
-                _handedOut = squad.slot;
-
-                return squad;
+                if (next == null || squad.slot < next.slot)
+                    next = squad;
             }
 
-            return null;
+            if (next != null)
+                _handedOut = next.slot;
+
+            return next;
         }
 
         /// <summary>

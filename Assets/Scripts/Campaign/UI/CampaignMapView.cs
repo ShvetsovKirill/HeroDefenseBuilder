@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -118,7 +118,7 @@ namespace HeroDefense.Campaign.UI
                 Destroy(_row.GetChild(i).gameObject);
 
             _available.Clear();
-            _available.AddRange(CampaignFlow.GetAvailableNodes());
+            CampaignFlow.FillAvailableNodes(_available);
 
             CampaignState state = CampaignRun.State;
 

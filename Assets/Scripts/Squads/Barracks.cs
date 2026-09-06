@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using HeroDefense.Core;
 using HeroDefense.Economy;
 
@@ -38,6 +38,9 @@ namespace HeroDefense.Squads
 
         private float _buildProgress;
         private bool _batchPaid;
+
+        /// <summary>За скольких бойцов уплачено в текущей партии.</summary>
+        private int _paidUnits;
 
         /// <summary>Отряд этой постройки. Через него ставится флаг.</summary>
         public Squad Squad => _squad;
@@ -158,16 +161,41 @@ namespace HeroDefense.Squads
             // второй раз он уже не выйдет.
             _commanderPending = false;
 
+            if (_record == null)
+                return;
+
             // Командир полёг вместе со всеми: отряд теряет имя
             // и специализацию, а его судьбу игрок решит в лагере.
             // Люди наберутся заново за золото, командир — нет.
-            if (_record != null && _record.HasCommander)
+            if (_record.HasCommander)
             {
                 Debug.Log($"[Кампания] Отряд {_record.slot} выбит, командир погиб.");
-
                 _record.LoseCommander();
-                Campaign.CampaignRun.Save();
             }
+
+            // Метка значит «людей нет СЕЙЧАС», а не «когда-то выбили»:
+            // пока казарма стоит, отряд наберётся заново за золото
+            // и метка снимется. Снесли казарму — снимать её станет некому,
+            // и отряд потерян насовсем (D46).
+            //
+            // Без этой записи армия в сохранении оставалась полной, отряды
+            // выходили в следующем владении как ни в чём не бывало,
+            // а поход нельзя было проиграть вообще.
+            MarkArmyRecord(true);
+        }
+
+        /// <summary>
+        /// Отметить в армии похода, есть ли у отряда люди. Пишем только
+        /// на смене значения: сохранение уходит на диск, и дёргать его
+        /// на каждого новобранца незачем.
+        /// </summary>
+        private void MarkArmyRecord(bool wipedOut)
+        {
+            if (_record == null || _record.wipedOut == wipedOut)
+                return;
+
+            _record.wipedOut = wipedOut;
+            Campaign.CampaignRun.Save();
         }
 
         private void Update()
@@ -225,12 +253,20 @@ namespace HeroDefense.Squads
             IsWaitingForGold = false;
             _batchPaid = true;
 
+            // Запоминаем, за сколько человек заплачено. Пересчитать это число
+            // при выходе нельзя: пока крутится шкала, отряд теряет ещё бойцов,
+            // свободных мест становится больше — и партия вышла бы крупнее
+            // оплаченной, то есть частично даром (D21a).
+            _paidUnits = needed;
+
             return true;
         }
 
         private void ReleaseBatch()
         {
-            int needed = Mathf.Min(definition.unitsPerBatch, _squad.MaxUnits - _squad.AliveCount);
+            // Не больше оплаченного и не больше, чем есть мест: погибшие
+            // во время шкалы восполняются следующей партией, за деньги.
+            int needed = Mathf.Min(_paidUnits, _squad.MaxUnits - _squad.AliveCount);
 
             for (int i = 0; i < needed; i++)
                 SpawnUnit();
@@ -247,6 +283,7 @@ namespace HeroDefense.Squads
         {
             _buildProgress = 0f;
             _batchPaid = false;
+            _paidUnits = 0;
         }
 
         private void SpawnUnit()
@@ -288,6 +325,10 @@ namespace HeroDefense.Squads
             }
 
             _squad.AddUnit(unit);
+
+            // Отряд снова с людьми: если он был выбит и отмечен потерянным,
+            // метку снимаем — за него заплатили заново.
+            MarkArmyRecord(false);
         }
 
         // ---------- Разрушение ----------

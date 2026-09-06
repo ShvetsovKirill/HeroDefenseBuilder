@@ -7912,12 +7912,13 @@ MonoBehaviour:
   attackTargetsOnPath: 1
   targetLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 768
   attackBlockingBuildings: 1
   obstacleCheckRadius: 2.4
   buildingLayer:
     serializedVersion: 2
     m_Bits: 256
+  lookInterval: 0.15
   separationRadius: 1
   separationStrength: 0.6
   maxNeighbours: 8

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -132,7 +132,7 @@ namespace HeroDefense.Campaign.UI
 
             _hint.text = _pendingSlot >= 0
                 ? string.Format(_hint.text, _pendingSlot)
-                : string.Format(_hint.text, state.squads.Count, state.freeCommanders.Count);
+                : string.Format(_hint.text, state.AliveSquadCount, state.freeCommanders.Count);
 
             foreach (SquadRecord squad in state.squads)
                 CreateSquadCard(squad);
@@ -179,9 +179,18 @@ namespace HeroDefense.Campaign.UI
                                  $"{Loc.GetOrFallback("army.size", "бойцов")}: {squad.size}",
                                  22f, RuntimeUi.TextColor, TextAlignmentOptions.Center);
 
+            // Потерянный отряд показываем, а не скрываем: слот остаётся
+            // в армии, и игрок должен видеть, что его больше нет, — иначе
+            // пропажа читается как ошибка интерфейса.
+            if (squad.wipedOut)
+            {
+                RuntimeUi.CreateText(host.transform,
+                                     Loc.GetOrFallback("army.wiped", "Отряд потерян"),
+                                     22f, new Color(0.75f, 0.3f, 0.3f), TextAlignmentOptions.Center);
+            }
             // Осиротевший отряд — единственный, у кого есть выбор из двух:
             // дать нового командира или снять специализацию совсем.
-            if (squad.IsOrphaned)
+            else if (squad.IsOrphaned)
             {
                 RuntimeUi.CreateText(host.transform,
                                      Loc.GetOrFallback("army.orphan", "Командир погиб"),
@@ -275,6 +284,15 @@ namespace HeroDefense.Campaign.UI
         private void OnSquadClicked(SquadRecord squad)
         {
             Audio.Sfx.Play(Audio.SoundId.UiClick);
+
+            // Потерянному отряду командира не дают: людей в нём нет,
+            // в бой он не выйдет, и добытый командир пропал бы впустую.
+            if (squad.wipedOut)
+            {
+                _hint.text = Loc.GetOrFallback("army.wipedhint",
+                                               "Этого отряда больше нет. Командира ему не дать.");
+                return;
+            }
 
             if (squad.IsOrphaned)
             {

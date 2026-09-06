@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using HeroDefense.Combat;
 using HeroDefense.Core;
@@ -67,6 +67,13 @@ namespace HeroDefense.Squads
 
         private static readonly Collider[] NeighbourBuffer = new Collider[8];
 
+        /// <summary>
+        /// Слой своих. Берётся у самого бойца, а не полем в инспекторе:
+        /// союзники по определению лежат на одном слое, а забытая галочка
+        /// на префабе выключила бы расталкивание молча.
+        /// </summary>
+        private int _allyMask;
+
         private Health _health;
         private AutoAttacker _attacker;
         private Squad _squad;
@@ -93,6 +100,8 @@ namespace HeroDefense.Squads
         {
             _health = GetComponent<Health>();
             _attacker = GetComponent<AutoAttacker>();
+
+            _allyMask = 1 << gameObject.layer;
 
             _anchor = transform.position;
 
@@ -121,13 +130,6 @@ namespace HeroDefense.Squads
             _health.Damaged -= OnDamaged;
         }
 
-        /// <summary>
-        /// По нам бьют — поднимаем тревогу всему отряду немедленно.
-        ///
-        /// Без этого боец, которого атакуют вне радиуса самозащиты, стоял бы
-        /// и умирал, пока рядом не наберётся достаточно врагов для порога.
-        /// А атакующий враг — это уже достаточное основание.
-        /// </summary>
         /// <summary>
         /// По нам бьют — поднимаем тревогу всему отряду немедленно.
         ///
@@ -407,8 +409,11 @@ namespace HeroDefense.Squads
             if (separationRadius <= 0f)
                 return Vector3.zero;
 
+            // Маска обязательна: без неё в буфер из восьми мест попадают
+            // земля, постройки и декор, свои туда не влезают — и строй
+            // расползается именно в свалке, где расталкивание нужнее всего.
             int count = Physics.OverlapSphereNonAlloc(
-                transform.position, separationRadius, NeighbourBuffer);
+                transform.position, separationRadius, NeighbourBuffer, _allyMask);
 
             Vector3 push = Vector3.zero;
 
